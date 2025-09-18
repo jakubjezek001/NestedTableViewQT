@@ -104,6 +104,8 @@ class ProductItemsTableModel(QAbstractTableModel):
 
         if success:
             self.dataChanged.emit(index, index, [role])
+            # Auto-save changes to file
+            self.controller.save_data()
 
         return success
 
@@ -260,6 +262,8 @@ class RepresentationItemsTableModel(QAbstractTableModel):
 
         if success:
             self.dataChanged.emit(index, index, [role])
+            # Auto-save changes to file
+            self.controller.save_data()
 
         return success
 

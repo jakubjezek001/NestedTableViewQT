@@ -193,40 +193,40 @@ class MainWindow(QMainWindow):
         exit_action.triggered.connect(self.close)
         file_menu.addAction(exit_action)
 
-        # View menu
-        view_menu = menubar.addMenu("&View")
+        # # View menu
+        # view_menu = menubar.addMenu("&View")
 
-        # Expand all action
-        expand_action = QAction("&Expand All", self)
-        expand_action.setShortcut(QKeySequence("Ctrl+E"))
-        expand_action.setStatusTip("Expand all product items")
-        expand_action.triggered.connect(self.expand_all)
-        view_menu.addAction(expand_action)
+        # # Expand all action
+        # expand_action = QAction("&Expand All", self)
+        # expand_action.setShortcut(QKeySequence("Ctrl+E"))
+        # expand_action.setStatusTip("Expand all product items")
+        # expand_action.triggered.connect(self.expand_all)
+        # view_menu.addAction(expand_action)
 
-        # Collapse all action
-        collapse_action = QAction("&Collapse All", self)
-        collapse_action.setShortcut(QKeySequence("Ctrl+Shift+E"))
-        collapse_action.setStatusTip("Collapse all product items")
-        collapse_action.triggered.connect(self.collapse_all)
-        view_menu.addAction(collapse_action)
+        # # Collapse all action
+        # collapse_action = QAction("&Collapse All", self)
+        # collapse_action.setShortcut(QKeySequence("Ctrl+Shift+E"))
+        # collapse_action.setStatusTip("Collapse all product items")
+        # collapse_action.triggered.connect(self.collapse_all)
+        # view_menu.addAction(collapse_action)
 
-        view_menu.addSeparator()
+        # view_menu.addSeparator()
 
-        # Refresh action
-        refresh_action = QAction("&Refresh", self)
-        refresh_action.setShortcut(QKeySequence("Ctrl+R"))
-        refresh_action.setStatusTip("Refresh the view")
-        refresh_action.triggered.connect(self.refresh_data)
-        view_menu.addAction(refresh_action)
+        # # Refresh action
+        # refresh_action = QAction("&Refresh", self)
+        # refresh_action.setShortcut(QKeySequence("Ctrl+R"))
+        # refresh_action.setStatusTip("Refresh the view")
+        # refresh_action.triggered.connect(self.refresh_data)
+        # view_menu.addAction(refresh_action)
 
-        # Help menu
-        help_menu = menubar.addMenu("&Help")
+        # # Help menu
+        # help_menu = menubar.addMenu("&Help")
 
-        # About action
-        about_action = QAction("&About", self)
-        about_action.setStatusTip("About this application")
-        about_action.triggered.connect(self.show_about)
-        help_menu.addAction(about_action)
+        # # About action
+        # about_action = QAction("&About", self)
+        # about_action.setStatusTip("About this application")
+        # about_action.triggered.connect(self.show_about)
+        # help_menu.addAction(about_action)
 
     def setup_statusbar(self):
         """Set up the status bar."""
@@ -372,6 +372,9 @@ Required: {len(repr_required)}<br>
 
         if file_path:
             try:
+                # Save current changes first
+                self.controller.save_data()
+
                 import shutil
 
                 shutil.copy(self.controller.data_file, file_path)

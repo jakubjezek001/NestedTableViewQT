@@ -1,0 +1,27 @@
+__pycache__
+poetry.lock
+
+.python-version
+.env
+.venv
+.poetry
+
+*-addon
+ayon-*
+
+# Ignore all temporary files
+__CLIENT*
+__TEST*
+__TEMP*
+
+uv.lock
+
+# Ignore Visual Studio Code
+.vscode
+*.code-workspace
+
+OpenColorIO-Configs
+
+OpenPype-premium
+
+ynput-ops-prodman

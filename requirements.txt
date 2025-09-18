@@ -1,0 +1,13 @@
+# Qt Python wrapper - provides abstraction over PySide6/PyQt5
+qtpy>=2.0.0
+
+# Qt backend - PySide6 is the recommended modern Qt implementation
+PySide6>=6.2.0
+
+# Alternative Qt backend (uncomment if you prefer PyQt5 over PySide6)
+# PyQt5>=5.15.0
+
+# Development and testing dependencies (optional)
+# pytest>=6.0.0  # For unit testing
+# black>=22.0.0   # For code formatting
+# flake8>=4.0.0   # For linting

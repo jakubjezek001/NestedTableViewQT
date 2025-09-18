@@ -248,6 +248,11 @@ class NestedTableDelegate(QStyledItemDelegate):
         if not index.isValid() or not editor:
             return
 
+        # Get original value to preserve type
+        original_value = index.data(Qt.UserRole)
+        if original_value is None:
+            original_value = index.data(Qt.DisplayRole)
+
         # Get data from editor based on its type
         value = None
         if hasattr(editor, "text"):
@@ -258,6 +263,33 @@ class NestedTableDelegate(QStyledItemDelegate):
             value = editor.isChecked()
 
         if value is not None:
+            # Preserve original data type
+            if original_value is not None and not isinstance(value, type(original_value)):
+                try:
+                    if isinstance(original_value, bool):
+                        # Handle boolean conversion
+                        if isinstance(value, str):
+                            value = value.lower() in ["true", "1", "yes", "on"]
+                        else:
+                            value = bool(value)
+                    elif isinstance(original_value, int):
+                        # Convert to int, handling empty strings
+                        value = int(float(str(value))) if str(value).strip() else 0
+                    elif isinstance(original_value, float):
+                        # Convert to float, handling empty strings
+                        value = float(str(value)) if str(value).strip() else 0.0
+                    elif isinstance(original_value, str):
+                        # Keep as string
+                        value = str(value)
+                except (ValueError, TypeError):
+                    # If conversion fails, keep original type's default
+                    if isinstance(original_value, (int, float)):
+                        value = type(original_value)(0)
+                    elif isinstance(original_value, bool):
+                        value = False
+                    else:
+                        value = str(value)
+
             model.setData(index, value, Qt.EditRole)
 
     def updateEditorGeometry(self, editor, option, index):

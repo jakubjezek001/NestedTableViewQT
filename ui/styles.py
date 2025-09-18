@@ -23,9 +23,9 @@ class StyleManager:
         """Initialize color constants that match the CSS theme."""
         return {
             # Required column colors
-            "required_bg": QColor(255, 248, 220),  # #fff8dc
-            "required_border": QColor(255, 215, 0),  # #ffd700
-            "required_text": QColor(184, 134, 11),  # #b8860b
+            "required_bg": QColor(72, 72, 72),  # #fff8dc
+            "required_border": QColor(72, 72, 72),  # #ffd700
+            "required_text": QColor(51, 51, 51),  # #b8860b
             # Disabled cell colors
             "disabled_bg": QColor(240, 240, 240),  # #f0f0f0
             "disabled_text": QColor(160, 160, 160),  # #a0a0a0
@@ -35,8 +35,8 @@ class StyleManager:
             # Representation header colors
             "repr_header_section_bg": QColor(100, 120, 180),  # #6478b4
             "repr_header_section_text": QColor(255, 255, 255),  # #ffffff
-            "repr_header_column_bg": QColor(200, 210, 240),  # #c8d2f0
-            "repr_header_column_text": QColor(40, 40, 40),  # #282828
+            "repr_header_column_bg": QColor(40, 40, 40),  # #c8d2f0
+            "repr_header_column_text": QColor(200, 210, 240),  # #282828
             "repr_header_border": QColor(80, 80, 80),  # #505050
             "repr_header_required_border": QColor(255, 165, 0),  # #ffa500
             # General colors
@@ -53,7 +53,7 @@ class StyleManager:
         if css_file_path is None:
             # Default to styles.css in the project root
             project_root = Path(__file__).parent.parent
-            css_file_path = project_root / "styles.css"
+            css_file_path = project_root / "dark_theme.css"
 
         try:
             with open(css_file_path, "r", encoding="utf-8") as f:

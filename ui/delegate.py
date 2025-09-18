@@ -103,8 +103,8 @@ class NestedTableDelegate(QStyledItemDelegate):
         # Create modified option for required cells
         opt = QStyleOptionViewItem(option)
 
-        # Set background color for required fields
-        painter.fillRect(opt.rect, ThemeColors.required_background())
+        # # Set background color for required fields
+        # painter.fillRect(opt.rect, ThemeColors.required_background())
 
         # Draw a subtle border to indicate required status
         painter.setPen(QPen(ThemeColors.required_border(), 1))
@@ -174,14 +174,14 @@ class NestedTableDelegate(QStyledItemDelegate):
         painter.setFont(font)
 
         # Check if this is a required column
-        is_required = index.data(Qt.UserRole + 1) or False
-        if is_required and text.startswith("<") and text.endswith(">"):
-            # Draw required column background
-            painter.fillRect(option.rect, ThemeColors.required_background())
-            # Draw gold border for required columns
-            painter.setPen(QPen(ThemeColors.required_border(), 2))
-            painter.drawRect(option.rect.adjusted(0, 0, -1, -1))
-            text_color = ThemeColors.repr_header_column_text()
+        # is_required = index.data(Qt.UserRole + 1) or False
+        # if is_required and text.startswith("<") and text.endswith(">"):
+        #     # Draw required column background
+        #     painter.fillRect(option.rect, ThemeColors.required_background())
+        #     # Draw gold border for required columns
+        #     painter.setPen(QPen(ThemeColors.required_border(), 2))
+        #     painter.drawRect(option.rect.adjusted(0, 0, -1, -1))
+        #     text_color = ThemeColors.repr_header_column_text()
 
         # Draw text with appropriate color
         painter.setPen(text_color)
@@ -339,8 +339,8 @@ class HeaderDelegate(QStyledItemDelegate):
             # Create modified option
             opt = QStyleOptionViewItem(option)
 
-            # Fill background with required color
-            painter.fillRect(opt.rect, ThemeColors.required_background())
+            # # Fill background with required color
+            # painter.fillRect(opt.rect, ThemeColors.required_background())
 
             # Draw text with bold font
             painter.save()

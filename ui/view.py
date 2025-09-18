@@ -216,10 +216,11 @@ class NestedTableView(QTableView):
                 model_type, model_index, source_row = self.model().row_mapping[
                     index.row()
                 ]
-                if model_type == "product":
-                    if hasattr(self.model(), "toggle_expansion"):
-                        self.model().toggle_expansion(index.row())
-                        return
+                # TODO: this will need to be reimplemented but now it blocks editing
+                # if model_type == "product":
+                #     if hasattr(self.model(), "toggle_expansion"):
+                #         self.model().toggle_expansion(index.row())
+                #         return
 
         super().mouseDoubleClickEvent(event)
 

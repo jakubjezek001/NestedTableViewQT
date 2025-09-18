@@ -45,6 +45,11 @@ class NestedTableDelegate(QStyledItemDelegate):
             self._paint_expansion_indicator(painter, opt, index)
             return
 
+        # Handle representation header rows
+        if self._is_repr_header_row(index):
+            self._paint_repr_header_cell(painter, opt, index)
+            return
+
         # Handle disabled cells (representation items without data for this column)
         if has_data is False:  # Explicitly False means no data available
             self._paint_disabled_cell(painter, opt, index)
@@ -138,6 +143,69 @@ class NestedTableDelegate(QStyledItemDelegate):
 
         painter.restore()
 
+    def _is_repr_header_row(self, index):
+        """Check if this index represents a representation header row."""
+        if not index.isValid():
+            return False
+
+        # Get the model and check if it has row_mapping
+        model = index.model()
+        if not hasattr(model, "row_mapping") or index.row() >= len(
+            model.row_mapping
+        ):
+            return False
+
+        model_type, _, _ = model.row_mapping[index.row()]
+        return model_type == "repr_header"
+
+    def _paint_repr_header_cell(self, painter, option, index):
+        """Paint representation header cells with special styling."""
+        # Set header background color - more prominent
+        if index.column() == 0:
+            # First column gets a darker header color for "RepresentationItems" label
+            header_color = QColor(100, 120, 180)  # Dark blue
+            text_color = QColor(255, 255, 255)  # White text
+        else:
+            header_color = QColor(200, 210, 240)  # Light blue-gray
+            text_color = QColor(40, 40, 40)  # Dark text
+
+        painter.fillRect(option.rect, header_color)
+
+        # Draw stronger border
+        painter.setPen(QPen(QColor(80, 80, 80), 2))
+        painter.drawRect(option.rect.adjusted(0, 0, -1, -1))
+
+        # Get display text
+        text = index.data(Qt.DisplayRole) or ""
+
+        # Set font (bold and italic for headers)
+        font = index.data(Qt.FontRole) or option.font
+        if index.column() == 0:
+            font.setPointSize(
+                font.pointSize() + 1
+            )  # Larger text for section header
+        painter.setFont(font)
+
+        # Check if this is a required column
+        is_required = index.data(Qt.UserRole + 1) or False
+        if is_required and text.startswith("<") and text.endswith(">"):
+            # Draw required column background
+            painter.fillRect(option.rect, self.required_color)
+            # Draw gold border for required columns
+            painter.setPen(QPen(QColor(255, 165, 0), 2))
+            painter.drawRect(option.rect.adjusted(0, 0, -1, -1))
+            text_color = QColor(40, 40, 40)  # Dark text on yellow
+
+        # Draw text with appropriate color
+        painter.setPen(text_color)
+        text_rect = option.rect.adjusted(6, 3, -6, -3)
+        alignment = (
+            Qt.AlignCenter
+            if index.column() == 0
+            else Qt.AlignLeft | Qt.AlignVCenter
+        )
+        painter.drawText(text_rect, alignment, text)
+
     def createEditor(self, parent, option, index):
         """Create appropriate editor for the cell."""
         if not index.isValid():
@@ -145,6 +213,10 @@ class NestedTableDelegate(QStyledItemDelegate):
 
         # Don't create editors for expansion indicators
         if index.column() == 0 and index.data(Qt.DisplayRole) in ["▶", "▼"]:
+            return None
+
+        # Don't create editors for representation header rows
+        if self._is_repr_header_row(index):
             return None
 
         # Don't create editors for disabled cells

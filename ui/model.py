@@ -328,6 +328,9 @@ class NestedTableProxyModel(QAbstractTableModel):
                         )
                     )
 
+                # Add header row for representation items
+                self.row_mapping.append(("repr_header", product_row, 0))
+
                 repr_model = self.representation_models[product_row]
                 for repr_row in range(repr_model.rowCount()):
                     self.row_mapping.append(
@@ -386,6 +389,35 @@ class NestedTableProxyModel(QAbstractTableModel):
             )
             return self.product_model.data(source_index, role)
 
+        elif model_type == "repr_header":
+            # Handle representation header row
+            if role == Qt.DisplayRole:
+                if index.column() == 0:
+                    return "RepresentationItems"
+                elif index.column() <= len(
+                    self.controller.get_representation_columns()
+                ):
+                    repr_cols = self.controller.get_representation_columns()
+                    col_index = index.column() - 1
+                    if col_index < len(repr_cols):
+                        return repr_cols[col_index]
+            elif role == Qt.FontRole:
+                from qtpy.QtGui import QFont
+
+                font = QFont()
+                font.setBold(True)
+                font.setItalic(True)
+                return font
+            elif role == Qt.UserRole + 1:  # Required column check
+                if index.column() > 0:
+                    repr_cols = self.controller.get_representation_columns()
+                    col_index = index.column() - 1
+                    if col_index < len(repr_cols):
+                        return self.controller.is_required_column(
+                            repr_cols[col_index]
+                        )
+            return None
+
         elif model_type == "representation":
             if model_index in self.representation_models:
                 repr_model = self.representation_models[model_index]
@@ -409,6 +441,10 @@ class NestedTableProxyModel(QAbstractTableModel):
             )
             return self.product_model.setData(source_index, value, role)
 
+        elif model_type == "repr_header":
+            # Header rows are not editable
+            return False
+
         elif model_type == "representation":
             if model_index in self.representation_models:
                 repr_model = self.representation_models[model_index]
@@ -431,6 +467,10 @@ class NestedTableProxyModel(QAbstractTableModel):
                 model_index, index.column()
             )
             return self.product_model.flags(source_index)
+
+        elif model_type == "repr_header":
+            # Header rows are selectable but not editable
+            return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
         elif model_type == "representation":
             if model_index in self.representation_models:

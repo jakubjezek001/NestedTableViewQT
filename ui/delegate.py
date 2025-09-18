@@ -2,6 +2,7 @@ from qtpy.QtWidgets import QStyledItemDelegate, QStyleOptionViewItem, QStyle
 from qtpy.QtCore import Qt, QRect
 from qtpy.QtGui import QPalette, QFont, QPen, QBrush, QColor
 from typing import Optional
+from ui.styles import ThemeColors
 
 
 class NestedTableDelegate(QStyledItemDelegate):
@@ -9,20 +10,6 @@ class NestedTableDelegate(QStyledItemDelegate):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        # Colors for different cell states
-        self.required_color = QColor(
-            255, 248, 220
-        )  # Light yellow for required columns
-        self.disabled_color = QColor(
-            240, 240, 240
-        )  # Light gray for disabled cells
-        self.disabled_text_color = QColor(
-            160, 160, 160
-        )  # Gray text for disabled
-        self.expansion_hover_color = QColor(
-            230, 230, 250
-        )  # Light blue for expansion hover
 
     def paint(self, painter, option, index):
         """Custom paint method to handle different cell states."""
@@ -67,7 +54,7 @@ class NestedTableDelegate(QStyledItemDelegate):
         """Paint the expansion indicator with hover effects."""
         # Check if mouse is hovering
         if option.state & QStyle.State_MouseOver:
-            painter.fillRect(option.rect, self.expansion_hover_color)
+            painter.fillRect(option.rect, ThemeColors.expansion_hover())
 
         # Get the text and font
         text = index.data(Qt.DisplayRole) or ""
@@ -85,14 +72,14 @@ class NestedTableDelegate(QStyledItemDelegate):
     def _paint_disabled_cell(self, painter, option, index):
         """Paint disabled cells with grayed out appearance."""
         # Fill background with disabled color
-        painter.fillRect(option.rect, self.disabled_color)
+        painter.fillRect(option.rect, ThemeColors.disabled_background())
 
         # Draw border
-        painter.setPen(QPen(QColor(200, 200, 200)))
+        painter.setPen(QPen(ThemeColors.disabled_text()))
         painter.drawRect(option.rect.adjusted(0, 0, -1, -1))
 
         # Draw diagonal lines to indicate disabled state
-        painter.setPen(QPen(QColor(220, 220, 220), 1, Qt.SolidLine))
+        painter.setPen(QPen(ThemeColors.disabled_text(), 1, Qt.SolidLine))
 
         # Draw diagonal pattern
         for i in range(0, option.rect.width() + option.rect.height(), 8):
@@ -117,10 +104,10 @@ class NestedTableDelegate(QStyledItemDelegate):
         opt = QStyleOptionViewItem(option)
 
         # Set background color for required fields
-        painter.fillRect(opt.rect, self.required_color)
+        painter.fillRect(opt.rect, ThemeColors.required_background())
 
         # Draw a subtle border to indicate required status
-        painter.setPen(QPen(QColor(255, 215, 0), 1))  # Gold border
+        painter.setPen(QPen(ThemeColors.required_border(), 1))
         painter.drawRect(opt.rect.adjusted(0, 0, -1, -1))
 
         # Get display text
@@ -163,16 +150,16 @@ class NestedTableDelegate(QStyledItemDelegate):
         # Set header background color - more prominent
         if index.column() == 0:
             # First column gets a darker header color for "RepresentationItems" label
-            header_color = QColor(100, 120, 180)  # Dark blue
-            text_color = QColor(255, 255, 255)  # White text
+            header_color = ThemeColors.repr_header_section_bg()
+            text_color = ThemeColors.repr_header_section_text()
         else:
-            header_color = QColor(200, 210, 240)  # Light blue-gray
-            text_color = QColor(40, 40, 40)  # Dark text
+            header_color = ThemeColors.repr_header_column_bg()
+            text_color = ThemeColors.repr_header_column_text()
 
         painter.fillRect(option.rect, header_color)
 
         # Draw stronger border
-        painter.setPen(QPen(QColor(80, 80, 80), 2))
+        painter.setPen(QPen(ThemeColors.repr_header_border(), 2))
         painter.drawRect(option.rect.adjusted(0, 0, -1, -1))
 
         # Get display text
@@ -190,11 +177,11 @@ class NestedTableDelegate(QStyledItemDelegate):
         is_required = index.data(Qt.UserRole + 1) or False
         if is_required and text.startswith("<") and text.endswith(">"):
             # Draw required column background
-            painter.fillRect(option.rect, self.required_color)
+            painter.fillRect(option.rect, ThemeColors.required_background())
             # Draw gold border for required columns
-            painter.setPen(QPen(QColor(255, 165, 0), 2))
+            painter.setPen(QPen(ThemeColors.required_border(), 2))
             painter.drawRect(option.rect.adjusted(0, 0, -1, -1))
-            text_color = QColor(40, 40, 40)  # Dark text on yellow
+            text_color = ThemeColors.repr_header_column_text()
 
         # Draw text with appropriate color
         painter.setPen(text_color)
@@ -328,9 +315,6 @@ class HeaderDelegate(QStyledItemDelegate):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.required_color = QColor(
-            255, 248, 220
-        )  # Light yellow for required columns
 
     def paint(self, painter, option, index):
         """Custom paint for headers with required column highlighting."""
@@ -356,7 +340,7 @@ class HeaderDelegate(QStyledItemDelegate):
             opt = QStyleOptionViewItem(option)
 
             # Fill background with required color
-            painter.fillRect(opt.rect, self.required_color)
+            painter.fillRect(opt.rect, ThemeColors.required_background())
 
             # Draw text with bold font
             painter.save()

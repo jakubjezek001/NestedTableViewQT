@@ -227,4 +227,96 @@ The included `data.json` contains three example product items:
 - **Models** can be used independently for other Qt applications
 - **Delegates** provide examples for complex cell rendering
 
+## Theming and Customization
+
+The application uses a CSS-based theming system that allows easy customization of colors, fonts, and styling without modifying the source code.
+
+### Theme Files
+
+- **`styles.css`**: Default light theme with professional appearance
+- **`dark_theme.css`**: Example dark theme for low-light environments
+- **Custom themes**: Create your own CSS files following the same structure
+
+### Key Customizable Elements
+
+**Colors and Backgrounds:**
+- Main window and content backgrounds
+- Table cell colors and alternating row colors
+- Selection and hover colors
+- Required column highlighting (yellow background)
+- Disabled cell visualization (gray with diagonal lines)
+- Representation header colors (blue header sections)
+
+**Typography:**
+- Font sizes for all UI elements
+- Font weights (bold, italic) for headers and labels
+- Text colors for different states (normal, disabled, selected)
+
+**Layout and Spacing:**
+- Button sizes and padding
+- Table cell padding and margins
+- Border styles and colors
+- Scroll bar appearance
+
+### Switching Themes
+
+To switch themes, modify the `load_stylesheet()` call in `ui/styles.py`:
+
+```python
+# Default light theme
+css_file_path = project_root / "styles.css"
+
+# Dark theme
+css_file_path = project_root / "dark_theme.css"
+
+# Custom theme
+css_file_path = project_root / "my_custom_theme.css"
+```
+
+### Creating Custom Themes
+
+1. **Copy existing theme**: Start with `styles.css` or `dark_theme.css`
+2. **Modify colors**: Update color values in the CSS comments section
+3. **Test changes**: Colors update immediately when restarting the application
+4. **Key color variables** to customize:
+   ```css
+   /* Primary interface colors */
+   background-color: #f5f5f5;    /* Main background */
+   color: #333333;               /* Primary text */
+   
+   /* Required column colors */
+   background-color: #fff8dc;    /* Required field background */
+   border: 1px solid #ffd700;    /* Required field border */
+   
+   /* Representation headers */
+   background-color: #6478b4;    /* Header section background */
+   color: #ffffff;               /* Header text color */
+   ```
+
+### Theme Structure
+
+The CSS file is organized into logical sections:
+- **Main Application**: Window and general styling
+- **Table Views**: Data table appearance and behavior  
+- **Headers**: Column and section header styling
+- **Required Columns**: Special highlighting for mandatory fields
+- **Disabled Cells**: Styling for non-applicable data cells
+- **Representation Headers**: Nested table section headers
+- **UI Components**: Buttons, labels, and controls
+- **Interactive Elements**: Hover effects and selections
+
+### Advanced Customization
+
+For complex styling needs, you can:
+- **Modify delegate painting**: Update colors in `ui/styles.py` ThemeColors class
+- **Add new CSS classes**: Extend the stylesheet with new selectors
+- **Dynamic theming**: Implement theme switching in the application menu
+- **Per-user themes**: Store theme preferences in user settings
+
+This application serves as both a functional tool and a comprehensive example of advanced Qt table view implementation with nested data structures.
+</thinking>
+
+<edits>
+
+<old_text line=219>
 This application serves as both a functional tool and a comprehensive example of advanced Qt table view implementation with nested data structures.

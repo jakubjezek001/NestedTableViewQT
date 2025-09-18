@@ -1,0 +1,339 @@
+/* NestedTableViewQT Application Stylesheet */
+/* This file contains all styling and theming for the application */
+
+/* === MAIN APPLICATION WINDOW === */
+QMainWindow {
+    background-color: #f5f5f5;
+    color: #333333;
+}
+
+/* === TABLE VIEW STYLING === */
+QTableView {
+    background-color: #ffffff;
+    alternate-background-color: #f8f8f8;
+    selection-background-color: #3498db;
+    selection-color: #ffffff;
+    gridline-color: #e0e0e0;
+    border: 1px solid #cccccc;
+    font-size: 11px;
+}
+
+QTableView::item {
+    padding: 4px;
+    border: none;
+}
+
+QTableView::item:selected {
+    background-color: #3498db;
+    color: #ffffff;
+}
+
+QTableView::item:hover {
+    background-color: #ecf0f1;
+}
+
+/* === TABLE HEADERS === */
+QHeaderView::section {
+    background-color: #e8e8e8;
+    color: #333333;
+    padding: 6px 4px;
+    border: 1px solid #cccccc;
+    font-weight: bold;
+    font-size: 11px;
+}
+
+QHeaderView::section:hover {
+    background-color: #dcdcdc;
+}
+
+/* === REQUIRED COLUMNS STYLING === */
+.required-column {
+    background-color: #fff8dc; /* Light yellow */
+    border: 1px solid #ffd700; /* Gold border */
+}
+
+.required-header {
+    background-color: #fff8dc;
+    border: 1px solid #ffd700;
+    font-weight: bold;
+    color: #b8860b; /* Dark goldenrod */
+}
+
+/* === DISABLED CELLS STYLING === */
+.disabled-cell {
+    background-color: #f0f0f0; /* Light gray */
+    color: #a0a0a0; /* Gray text */
+    border: 1px solid #c8c8c8;
+}
+
+/* === EXPANSION INDICATOR STYLING === */
+.expansion-indicator {
+    font-size: 12px;
+    color: #333333;
+    background-color: transparent;
+    text-align: center;
+}
+
+.expansion-indicator:hover {
+    background-color: #e6e6fa; /* Light blue hover */
+    color: #000000;
+}
+
+/* === REPRESENTATION HEADER STYLING === */
+.repr-header-section {
+    background-color: #6478b4; /* Dark blue */
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 12px;
+    text-align: center;
+    border: 2px solid #505050;
+    padding: 6px;
+}
+
+.repr-header-column {
+    background-color: #c8d2f0; /* Light blue-gray */
+    color: #282828;
+    font-weight: bold;
+    font-style: italic;
+    border: 2px solid #505050;
+    padding: 3px 6px;
+}
+
+.repr-header-required {
+    background-color: #fff8dc; /* Required column yellow */
+    color: #282828;
+    border: 2px solid #ffa500; /* Orange border for required */
+}
+
+/* === MAIN WINDOW COMPONENTS === */
+QGroupBox {
+    font-weight: bold;
+    border: 2px solid #cccccc;
+    border-radius: 5px;
+    margin: 3px 0px;
+    padding-top: 8px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 8px 0 8px;
+    color: #555555;
+}
+
+/* === BUTTONS === */
+QPushButton {
+    background-color: #ecf0f1;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 11px;
+    color: #2c3e50;
+    min-width: 80px;
+}
+
+QPushButton:hover {
+    background-color: #d5dbdb;
+    border-color: #95a5a6;
+}
+
+QPushButton:pressed {
+    background-color: #bdc3c7;
+    border-color: #7f8c8d;
+}
+
+QPushButton:checked {
+    background-color: #3498db;
+    color: #ffffff;
+    border-color: #2980b9;
+}
+
+/* === LABELS === */
+QLabel {
+    color: #333333;
+}
+
+QLabel#title-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+QLabel#info-label {
+    color: #666666;
+    font-size: 10px;
+}
+
+QLabel#status-label {
+    color: #666666;
+    font-size: 10px;
+}
+
+QLabel#selection-label {
+    color: #666666;
+    font-size: 10px;
+}
+
+QLabel#stats-label {
+    color: #444444;
+    font-size: 11px;
+}
+
+QLabel#instructions-label {
+    font-size: 10px;
+    color: #666666;
+}
+
+/* === SEPARATORS === */
+QFrame[frameShape="4"] {
+    /* HLine */
+    color: #cccccc;
+    background-color: #cccccc;
+    height: 1px;
+}
+
+QFrame[frameShape="5"] {
+    /* VLine */
+    color: #cccccc;
+    background-color: #cccccc;
+    width: 1px;
+}
+
+/* === SPLITTER === */
+QSplitter::handle {
+    background-color: #bdc3c7;
+    width: 3px;
+    height: 3px;
+}
+
+QSplitter::handle:hover {
+    background-color: #95a5a6;
+}
+
+/* === MENU BAR === */
+QMenuBar {
+    background-color: #ecf0f1;
+    border-bottom: 1px solid #bdc3c7;
+    color: #2c3e50;
+}
+
+QMenuBar::item {
+    background-color: transparent;
+    padding: 4px 8px;
+}
+
+QMenuBar::item:selected {
+    background-color: #d5dbdb;
+}
+
+QMenuBar::item:pressed {
+    background-color: #bdc3c7;
+}
+
+/* === MENU === */
+QMenu {
+    background-color: #ffffff;
+    border: 1px solid #bdc3c7;
+    color: #2c3e50;
+}
+
+QMenu::item {
+    padding: 6px 20px;
+}
+
+QMenu::item:selected {
+    background-color: #3498db;
+    color: #ffffff;
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: #bdc3c7;
+    margin: 2px 0px;
+}
+
+/* === STATUS BAR === */
+QStatusBar {
+    background-color: #ecf0f1;
+    border-top: 1px solid #bdc3c7;
+    color: #2c3e50;
+}
+
+/* === SCROLL BARS === */
+QScrollBar:vertical {
+    background-color: #f1f1f1;
+    width: 16px;
+    border-radius: 8px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #c1c1c1;
+    min-height: 20px;
+    border-radius: 8px;
+    margin: 2px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #a8a8a8;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    background-color: #f1f1f1;
+    height: 16px;
+    border-radius: 8px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #c1c1c1;
+    min-width: 20px;
+    border-radius: 8px;
+    margin: 2px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #a8a8a8;
+}
+
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+    width: 0px;
+}
+
+/* === THEME COLORS VARIABLES === */
+/* These can be easily changed to create different themes */
+/*
+Primary Colors:
+- Main Background: #f5f5f5
+- Content Background: #ffffff
+- Accent Blue: #3498db
+- Text Primary: #333333
+- Text Secondary: #666666
+- Text Light: #999999
+
+Required Column Colors:
+- Background: #fff8dc (Light Yellow)
+- Border: #ffd700 (Gold)
+- Text: #b8860b (Dark Goldenrod)
+
+Disabled Cell Colors:
+- Background: #f0f0f0 (Light Gray)
+- Text: #a0a0a0 (Gray)
+- Border: #c8c8c8 (Light Gray Border)
+
+Representation Header Colors:
+- Section Background: #6478b4 (Dark Blue)
+- Section Text: #ffffff (White)
+- Column Background: #c8d2f0 (Light Blue-Gray)
+- Column Text: #282828 (Dark Gray)
+
+Interactive Colors:
+- Hover: #ecf0f1
+- Selection: #3498db
+- Border: #cccccc
+- Grid Lines: #e0e0e0
+*/

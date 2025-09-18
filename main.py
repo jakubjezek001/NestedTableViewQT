@@ -19,6 +19,7 @@ from qtpy.QtCore import Qt, QDir
 from qtpy.QtGui import QIcon
 
 from ui.ui import create_main_window
+from ui.styles import load_and_apply_styles
 
 
 def setup_application():
@@ -38,6 +39,9 @@ def setup_application():
     # Enable high DPI support (handled automatically in newer Qt versions)
     # app.setAttribute(Qt.AA_EnableHighDpiScaling, True)  # Deprecated
     # app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)     # Deprecated
+
+    # Load and apply CSS styles
+    load_and_apply_styles(app)
 
     return app
 

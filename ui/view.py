@@ -292,17 +292,14 @@ class NestedTableWidget(QWidget):
 
         # Title
         title_label = QLabel("Product Items and Representations")
-        title_font = QFont()
-        title_font.setPointSize(12)
-        title_font.setBold(True)
-        title_label.setFont(title_font)
+        title_label.setObjectName("title-label")
         header_layout.addWidget(title_label)
 
         header_layout.addStretch()
 
         # Info labels
         self.info_label = QLabel("0 products loaded")
-        self.info_label.setStyleSheet("color: #666666; font-size: 10px;")
+        self.info_label.setObjectName("info-label")
         header_layout.addWidget(self.info_label)
 
         layout.addLayout(header_layout)
@@ -324,12 +321,12 @@ class NestedTableWidget(QWidget):
         # Status bar
         status_layout = QHBoxLayout()
         self.status_label = QLabel("Ready")
-        self.status_label.setStyleSheet("color: #666666; font-size: 10px;")
+        self.status_label.setObjectName("status-label")
         status_layout.addWidget(self.status_label)
         status_layout.addStretch()
 
         self.selection_label = QLabel("")
-        self.selection_label.setStyleSheet("color: #666666; font-size: 10px;")
+        self.selection_label.setObjectName("selection-label")
         status_layout.addWidget(self.selection_label)
 
         layout.addLayout(status_layout)

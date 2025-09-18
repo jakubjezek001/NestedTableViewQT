@@ -421,10 +421,10 @@ class NestedTableProxyModel(QAbstractTableModel):
         elif model_type == "representation":
             if model_index in self.representation_models:
                 repr_model = self.representation_models[model_index]
-                if index.column() < repr_model.columnCount():
-                    source_index = repr_model.createIndex(
-                        source_row, index.column()
-                    )
+                # Skip the first column (expansion indicator) for representation data
+                repr_col = index.column() - 1
+                if repr_col >= 0 and repr_col < repr_model.columnCount():
+                    source_index = repr_model.createIndex(source_row, repr_col)
                     return repr_model.data(source_index, role)
 
         return None
@@ -448,10 +448,10 @@ class NestedTableProxyModel(QAbstractTableModel):
         elif model_type == "representation":
             if model_index in self.representation_models:
                 repr_model = self.representation_models[model_index]
-                if index.column() < repr_model.columnCount():
-                    source_index = repr_model.createIndex(
-                        source_row, index.column()
-                    )
+                # Skip the first column (expansion indicator) for representation data
+                repr_col = index.column() - 1
+                if repr_col >= 0 and repr_col < repr_model.columnCount():
+                    source_index = repr_model.createIndex(source_row, repr_col)
                     return repr_model.setData(source_index, value, role)
 
         return False
@@ -475,10 +475,10 @@ class NestedTableProxyModel(QAbstractTableModel):
         elif model_type == "representation":
             if model_index in self.representation_models:
                 repr_model = self.representation_models[model_index]
-                if index.column() < repr_model.columnCount():
-                    source_index = repr_model.createIndex(
-                        source_row, index.column()
-                    )
+                # Skip the first column (expansion indicator) for representation data
+                repr_col = index.column() - 1
+                if repr_col >= 0 and repr_col < repr_model.columnCount():
+                    source_index = repr_model.createIndex(source_row, repr_col)
                     return repr_model.flags(source_index)
 
         return Qt.NoItemFlags

@@ -133,6 +133,7 @@ class MainWindow(QMainWindow):
         # Data statistics
         self.stats_label = QLabel("Loading...")
         self.stats_label.setWordWrap(True)
+        self.stats_label.setObjectName("stats-label")
         info_layout.addWidget(self.stats_label)
 
         info_layout.addSpacing(10)
@@ -148,7 +149,7 @@ class MainWindow(QMainWindow):
 • Use F5 to refresh data
         """)
         instructions.setWordWrap(True)
-        instructions.setStyleSheet("font-size: 10px; color: #666666;")
+        instructions.setObjectName("instructions-label")
         info_layout.addWidget(instructions)
 
         info_layout.addStretch()

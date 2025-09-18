@@ -78,6 +78,14 @@ class ProductItemsTableModel(QAbstractTableModel):
             column_name = self._columns[col - 1]
             return self.controller.is_required_column(column_name)
 
+        elif role == Qt.UserRole + 2:  # Custom role for data availability
+            if col == 0:
+                return True  # Expansion indicator always has data
+            column_name = self._columns[col - 1]
+            return self.controller.has_product_data_for_column(
+                row, column_name
+            )
+
         return None
 
     def setData(self, index, value, role=Qt.EditRole):
@@ -109,7 +117,13 @@ class ProductItemsTableModel(QAbstractTableModel):
         if index.column() == 0:
             return flags
 
-        flags |= Qt.ItemIsEditable
+        # Only allow editing if this product item has data for this column
+        row = index.row()
+        col = index.column()
+        column_name = self._columns[col - 1]
+        if self.controller.has_product_data_for_column(row, column_name):
+            flags |= Qt.ItemIsEditable
+
         return flags
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):

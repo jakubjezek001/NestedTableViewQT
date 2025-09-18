@@ -135,6 +135,22 @@ class DataController:
         )
         return column in item_columns
 
+    def get_product_columns_for_item(self, product_index: int) -> Set[str]:
+        """Get the specific columns that exist for a particular product item."""
+        product_item = self.get_product_item(product_index)
+        if not product_item:
+            return set()
+
+        data = product_item.get("data", {})
+        return set(data.keys())
+
+    def has_product_data_for_column(
+        self, product_index: int, column: str
+    ) -> bool:
+        """Check if a specific product item has data for a given column."""
+        item_columns = self.get_product_columns_for_item(product_index)
+        return column in item_columns
+
     def update_product_data(
         self, product_index: int, column: str, value: Any
     ) -> bool:

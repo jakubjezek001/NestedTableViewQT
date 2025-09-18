@@ -27,9 +27,9 @@ class StyleManager:
             "required_border": QColor(72, 72, 72),  # #ffd700
             "required_text": QColor(51, 51, 51),  # #b8860b
             # Disabled cell colors
-            "disabled_bg": QColor(240, 240, 240),  # #f0f0f0
-            "disabled_text": QColor(160, 160, 160),  # #a0a0a0
-            "disabled_border": QColor(200, 200, 200),  # #c8c8c8
+            "disabled_bg": QColor(55, 55, 55),  # #f0f0f0
+            "disabled_text": QColor(72, 72, 72),  # #a0a0a0
+            "disabled_border": QColor(51, 51, 51),  # #c8c8c8
             # Expansion indicator colors
             "expansion_hover": QColor(230, 230, 250),  # #e6e6fa
             # Representation header colors

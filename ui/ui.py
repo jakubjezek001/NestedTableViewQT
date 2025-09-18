@@ -120,8 +120,8 @@ class MainWindow(QMainWindow):
         info_panel = self.create_info_panel()
         content_splitter.addWidget(info_panel)
 
-        # Set splitter proportions (80% table, 20% info)
-        content_splitter.setSizes([800, 200])
+        # Set splitter proportions (info panel collapsed by default)
+        content_splitter.setSizes([1000, 0])
 
         main_layout.addWidget(content_splitter, 1)
 

@@ -90,6 +90,19 @@ class MainWindow(QMainWindow):
         self.refresh_btn.clicked.connect(self.refresh_data)
         toolbar_layout.addWidget(self.refresh_btn)
 
+        toolbar_layout.addSpacing(20)
+
+        # File operations
+        self.open_btn = QPushButton("Open Data File")
+        self.open_btn.setToolTip("Open a different data file")
+        self.open_btn.clicked.connect(self.open_data_file)
+        toolbar_layout.addWidget(self.open_btn)
+
+        self.export_btn = QPushButton("Export Data")
+        self.export_btn.setToolTip("Export current data to file")
+        self.export_btn.clicked.connect(self.export_data)
+        toolbar_layout.addWidget(self.export_btn)
+
         toolbar_layout.addStretch()
 
         # Auto-refresh toggle
@@ -159,74 +172,14 @@ class MainWindow(QMainWindow):
         """Set up the application menu."""
         menubar = self.menuBar()
 
-        # File menu
-        file_menu = menubar.addMenu("&File")
+        # Help menu
+        help_menu = menubar.addMenu("&Help")
 
-        # Open action
-        open_action = QAction("&Open Data File...", self)
-        open_action.setShortcut(QKeySequence.Open)
-        open_action.setStatusTip("Open a different data file")
-        open_action.triggered.connect(self.open_data_file)
-        file_menu.addAction(open_action)
-
-        # Reload action
-        reload_action = QAction("&Reload", self)
-        reload_action.setShortcut(QKeySequence("F5"))
-        reload_action.setStatusTip("Reload data from current file")
-        reload_action.triggered.connect(self.refresh_data)
-        file_menu.addAction(reload_action)
-
-        file_menu.addSeparator()
-
-        # Export action
-        export_action = QAction("&Export Data...", self)
-        export_action.setStatusTip("Export current data to file")
-        export_action.triggered.connect(self.export_data)
-        file_menu.addAction(export_action)
-
-        file_menu.addSeparator()
-
-        # Exit action
-        exit_action = QAction("E&xit", self)
-        exit_action.setShortcut(QKeySequence.Quit)
-        exit_action.setStatusTip("Exit the application")
-        exit_action.triggered.connect(self.close)
-        file_menu.addAction(exit_action)
-
-        # # View menu
-        # view_menu = menubar.addMenu("&View")
-
-        # # Expand all action
-        # expand_action = QAction("&Expand All", self)
-        # expand_action.setShortcut(QKeySequence("Ctrl+E"))
-        # expand_action.setStatusTip("Expand all product items")
-        # expand_action.triggered.connect(self.expand_all)
-        # view_menu.addAction(expand_action)
-
-        # # Collapse all action
-        # collapse_action = QAction("&Collapse All", self)
-        # collapse_action.setShortcut(QKeySequence("Ctrl+Shift+E"))
-        # collapse_action.setStatusTip("Collapse all product items")
-        # collapse_action.triggered.connect(self.collapse_all)
-        # view_menu.addAction(collapse_action)
-
-        # view_menu.addSeparator()
-
-        # # Refresh action
-        # refresh_action = QAction("&Refresh", self)
-        # refresh_action.setShortcut(QKeySequence("Ctrl+R"))
-        # refresh_action.setStatusTip("Refresh the view")
-        # refresh_action.triggered.connect(self.refresh_data)
-        # view_menu.addAction(refresh_action)
-
-        # # Help menu
-        # help_menu = menubar.addMenu("&Help")
-
-        # # About action
-        # about_action = QAction("&About", self)
-        # about_action.setStatusTip("About this application")
-        # about_action.triggered.connect(self.show_about)
-        # help_menu.addAction(about_action)
+        # About action
+        about_action = QAction("&About", self)
+        about_action.setStatusTip("About this application")
+        about_action.triggered.connect(self.show_about)
+        help_menu.addAction(about_action)
 
     def setup_statusbar(self):
         """Set up the status bar."""

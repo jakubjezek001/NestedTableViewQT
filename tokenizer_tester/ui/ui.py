@@ -44,7 +44,7 @@ class TokenizerTesterApp(QMainWindow):
     def _setup_ui(self) -> None:
         """Set up the user interface components."""
         self.setWindowTitle("Batch Ingest tokenizer template tester")
-        self.setFixedSize(400, 500)
+        self.setFixedSize(800, 600)
 
         # Create central widget and main layout
         central_widget = QWidget()

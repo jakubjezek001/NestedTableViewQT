@@ -1,0 +1,197 @@
+/* CSS Styles for Batch Ingest Tokenizer Template Tester */
+/* Dark theme with no edges style */
+
+/* Main window styling */
+QMainWindow {
+    background-color: #2b2b2b;
+    color: white;
+}
+
+/* Input fields styling */
+QLineEdit#pathInput, QLineEdit#templateInput {
+    background-color: #353535; /* 10% brighter than window background */
+    color: white;
+    border: none;
+    border-radius: 0px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    selection-background-color: #4a90e2;
+}
+
+QLineEdit#pathInput:focus, QLineEdit#templateInput:focus {
+    background-color: #3a3a3a;
+    outline: none;
+}
+
+QLineEdit#pathInput::placeholder, QLineEdit#templateInput::placeholder {
+    color: #888888;
+}
+
+/* Table view container styling */
+QStackedWidget#tokenTable {
+    background-color: #1e1e1e; /* 20% darker than window background */
+    border: none;
+    border-radius: 8px;
+}
+
+/* Table view styling */
+QTableView#tokenTableView {
+    background-color: #1e1e1e; /* 20% darker than window background */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    gridline-color: #404040;
+    selection-background-color: #4a90e2;
+    selection-color: white;
+    font-size: 12px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    alternate-background-color: #1a1a1a;
+}
+
+/* Table view - remove vertical grid lines, keep horizontal */
+QTableView#tokenTableView {
+    show-decoration-selected: 1;
+}
+
+QTableView#tokenTableView::item {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid #404040;
+    padding: 8px 12px;
+    min-height: 20px;
+}
+
+QTableView#tokenTableView::item:selected {
+    background-color: #4a90e2;
+    color: white;
+}
+
+/* Header styling */
+QHeaderView {
+    background-color: #353535;
+    border: none;
+    border-radius: 0px;
+}
+
+QHeaderView::section {
+    background-color: #353535;
+    color: white;
+    border: none;
+    border-bottom: 2px solid #404040;
+    padding: 12px 12px;
+    font-weight: bold;
+    font-size: 12px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    text-align: left;
+}
+
+QHeaderView::section:first {
+    border-top-left-radius: 8px;
+}
+
+QHeaderView::section:last {
+    border-top-right-radius: 8px;
+}
+
+/* Scrollbar styling */
+QScrollBar:vertical {
+    background-color: #2b2b2b;
+    width: 12px;
+    border: none;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #555555;
+    border-radius: 6px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #666666;
+}
+
+QScrollBar::handle:vertical:pressed {
+    background-color: #777777;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    border: none;
+    background: none;
+    width: 0px;
+    height: 0px;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+QScrollBar:horizontal {
+    background-color: #2b2b2b;
+    height: 12px;
+    border: none;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: #555555;
+    border-radius: 6px;
+    min-width: 20px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background-color: #666666;
+}
+
+QScrollBar::handle:horizontal:pressed {
+    background-color: #777777;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    border: none;
+    background: none;
+    width: 0px;
+    height: 0px;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
+}
+
+/* Warning label styling */
+QLabel#warningLabel {
+    color: #888888;
+    font-size: 14px;
+    font-style: italic;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background-color: transparent;
+    border: none;
+    padding: 20px;
+}
+
+/* Tooltip styling */
+QToolTip {
+    background-color: #404040;
+    color: white;
+    border: 1px solid #555555;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 11px;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* Focus styling for accessibility */
+QWidget:focus {
+    outline: 2px solid #4a90e2;
+    outline-offset: 1px;
+}
+
+/* Ensure no default margins/padding interfere */
+* {
+    outline: none;
+}
+
+/* Custom styling for different row states will be handled by delegates */
+/* This CSS provides the base theme and layout styling */

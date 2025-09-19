@@ -18,7 +18,8 @@ from qtpy.QtCore import QTimer
 from qtpy.QtTest import QTest
 
 from ui.ui import TokenizerTesterApp
-from controller import parse_tokens, validate_path, extract_template_tokens
+from controller import parse_tokens, validate_path
+from tokenization import Tokenizer
 
 
 def test_controller_functions():
@@ -27,10 +28,12 @@ def test_controller_functions():
 
     # Test parse_tokens function
     print("  - Testing parse_tokens...")
-    tokens = parse_tokens(
-        "/some/test/path.exr", "{project}_{shot}_{version}.{extension}"
+    tokenizer = Tokenizer(
+        "/some/test/path.exr", "{root}/{type}/{file}.{extension}"
     )
-    print(f"    Mock tokens generated: {len(tokens)} tokens")
+    tokens, errors = tokenizer.get_tokens()
+    print(f"    Errors: {errors}")
+    print(f"    Mock tokens generated: {len(tokens.keys())} tokens")
     print(f"    Sample tokens: {dict(list(tokens.items())[:3])}")
 
     # Test with empty inputs
@@ -46,8 +49,10 @@ def test_controller_functions():
 
     # Test extract_template_tokens function
     print("  - Testing extract_template_tokens...")
-    template = "{project}_{shot}_v{version}.{extension}"
-    extracted = extract_template_tokens(template)
+
+    extracted = tokenizer.extract_template_tokens(
+        "{project}_{shot}_v{version}.{extension}"
+    )
     expected_tokens = {"project", "shot", "version", "extension"}
     assert set(extracted) == expected_tokens, (
         f"Expected {expected_tokens}, got {set(extracted)}"
@@ -68,10 +73,8 @@ def test_ui_components():
     print("  - Main window created successfully")
 
     # Test setting values
-    test_path = "/test/project/shot_001/lighting/master_v001.exr"
-    test_template = (
-        "{project}/{shot}/{department}/{task}_v{version}.{extension}"
-    )
+    test_path = "/260822_VFX_Pull_038_VFX/exrs/15TS_2500_bg03_v05/4315x2428/15TS_2300_bg01_v05.1552.exr"
+    test_template = "/{width:4}x{height:4d}/{project_name}_{shot}_{product_type:.2}{product_variant:.2}_v{version:d}.{padding}.{extension}"
 
     window.set_path(test_path)
     window.set_template(test_template)

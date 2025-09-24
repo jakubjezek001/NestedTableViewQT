@@ -1,0 +1,107 @@
+# Drop-off Test Application
+
+A simple `qtpy` GUI application that demonstrates drag and drop functionality with a table view and drop zones.
+
+## Features
+
+- **Table Widget**: Displays items from JSON data with drag support
+- **Dual Drop Zones**: Two drop areas for different actions
+- **Multi-selection**: Select and drag multiple items simultaneously
+- **Output Area**: Shows processing results with detailed item information
+- **Custom Styling**: Uses prepared CSS theme
+
+## File Structure
+
+```
+drop-off-test/
+├── main.py              # Application entry point
+├── controller.py        # Data management and preparation
+├── data.json           # Sample data for table items
+├── style.css           # Application styling
+├── test_app.py         # Validation tests
+└── ui/
+    ├── __init__.py     # UI package initialization
+    ├── ui.py           # Main window and application setup
+    ├── view.py         # Main view with table and drop zones
+    ├── model.py        # Table model with drag/drop support
+    └── delegate.py     # Custom item rendering
+```
+
+## How to Run
+
+1. Ensure you're in the `drop-off-test` directory
+2. Run the application:
+   ```bash
+   python main.py
+   ```
+
+## How to Use
+
+### Table View
+- The left panel shows a table with item data loaded from `data.json`
+- Items have attributes: Name, File Path, Product Name, Product Type, Version
+- Items can be selected individually or multiple items at once
+
+### Drag and Drop
+1. **Select Items**: Click to select single item, Ctrl+Click for multiple selection
+2. **Drag**: Click and drag selected items from the table
+3. **Drop**: Drop items onto either drop zone:
+   - **Loading to Viewer** (top right)
+   - **Adding to Timeline** (bottom right)
+
+### Drop Zones
+- **Visual Feedback**: Zones highlight when dragging items over them
+- **Batch Processing**: Multiple items are processed together
+- **Action Results**: Each drop triggers its respective action
+
+### Output Area
+- Located at the bottom of the window
+- Shows detailed information about processed items
+- Displays which action was triggered and item attributes
+
+## Item Data Structure
+
+Each item in `data.json` contains:
+```json
+{
+    "name": "Item_Name_v001",
+    "file_path": "C:/path/to/file.ext",
+    "product_name": "Product Name",
+    "product_type": "type",
+    "version": "v001"
+}
+```
+
+## Requirements
+
+- Python 3.7+
+- qtpy (Qt wrapper library)
+- PySide6 or PyQt6 (via qtpy)
+
+## Testing
+
+Run the test suite to validate functionality:
+```bash
+python test_app.py
+```
+
+The test validates:
+- JSON data integrity
+- Controller functionality
+- Model drag/drop support
+- Module imports
+- MIME data handling
+
+## Usage Tips
+
+- **Multiple Selection**: Use Ctrl+Click or Shift+Click for selecting multiple items
+- **Visual Feedback**: Drop zones change color when items are dragged over them
+- **Batch Operations**: All selected items are processed when dropped
+- **Output History**: The output area maintains a history of all drop actions
+
+## Customization
+
+- **Data**: Modify `data.json` to change table contents
+- **Styling**: Edit `style.css` to customize appearance
+- **Actions**: Extend drop zone actions in `view.py`
+- **Columns**: Add/modify columns in `controller.py`

@@ -1,0 +1,72 @@
+[
+    {
+        "name": "Character_Rig_v003",
+        "file_path": "C:/Projects/Film_A/assets/characters/hero/rig/character_rig_v003.ma",
+        "product_name": "Hero Character",
+        "product_type": "rig",
+        "version": "v003"
+    },
+    {
+        "name": "Environment_Model_v012",
+        "file_path": "C:/Projects/Film_A/assets/environments/forest/model/environment_model_v012.mb",
+        "product_name": "Forest Environment",
+        "product_type": "model",
+        "version": "v012"
+    },
+    {
+        "name": "Vehicle_Texture_v007",
+        "file_path": "C:/Projects/Film_A/assets/props/vehicle/texture/vehicle_texture_v007.exr",
+        "product_name": "Hero Vehicle",
+        "product_type": "texture",
+        "version": "v007"
+    },
+    {
+        "name": "Animation_Cache_v025",
+        "file_path": "C:/Projects/Film_A/shots/sq010/sh020/animation/animation_cache_v025.abc",
+        "product_name": "Hero Walk Cycle",
+        "product_type": "animation",
+        "version": "v025"
+    },
+    {
+        "name": "Lighting_Setup_v008",
+        "file_path": "C:/Projects/Film_A/shots/sq010/sh020/lighting/lighting_setup_v008.ma",
+        "product_name": "Forest Lighting",
+        "product_type": "lighting",
+        "version": "v008"
+    },
+    {
+        "name": "Compositing_Script_v015",
+        "file_path": "C:/Projects/Film_A/shots/sq010/sh020/comp/comp_script_v015.nk",
+        "product_name": "Final Composite",
+        "product_type": "comp",
+        "version": "v015"
+    },
+    {
+        "name": "FX_Simulation_v004",
+        "file_path": "C:/Projects/Film_A/shots/sq010/sh020/fx/fx_simulation_v004.bgeo",
+        "product_name": "Dust Cloud Effect",
+        "product_type": "fx",
+        "version": "v004"
+    },
+    {
+        "name": "Camera_Animation_v011",
+        "file_path": "C:/Projects/Film_A/shots/sq010/sh020/camera/camera_anim_v011.fbx",
+        "product_name": "Hero Camera Move",
+        "product_type": "camera",
+        "version": "v011"
+    },
+    {
+        "name": "Audio_Track_v002",
+        "file_path": "C:/Projects/Film_A/shots/sq010/sh020/audio/audio_track_v002.wav",
+        "product_name": "Dialog Track",
+        "product_type": "audio",
+        "version": "v002"
+    },
+    {
+        "name": "Previz_Layout_v019",
+        "file_path": "C:/Projects/Film_A/shots/sq010/sh020/previz/previz_layout_v019.mb",
+        "product_name": "Scene Layout",
+        "product_type": "layout",
+        "version": "v019"
+    }
+]

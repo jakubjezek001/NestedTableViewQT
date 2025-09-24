@@ -82,7 +82,26 @@ class MainWindow(QMainWindow):
                 for placeholder, color in color_map.items():
                     stylesheet = stylesheet.replace(placeholder, color)
 
-                self.setStyleSheet(stylesheet)
+                # Add custom styling for drop zones
+                custom_css = """
+                QPushButton#dropZone {
+                    background: #404040;
+                    border: 2px dashed #666666;
+                    border-radius: 8px;
+                    font-size: 12pt;
+                    font-weight: bold;
+                    color: #E0E0E0;
+                }
+                QPushButton#dropZone:hover {
+                    background: #4A4A4A;
+                    border-color: #4A90E2;
+                }
+                QPushButton#dropZone:pressed {
+                    background: #555555;
+                }
+                """
+
+                self.setStyleSheet(stylesheet + custom_css)
 
             except Exception as e:
                 print(f"Error loading styles: {e}")

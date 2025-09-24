@@ -1,8 +1,8 @@
 """Delegate component for custom item rendering."""
 
-from qtpy.QtWidgets import QStyledItemDelegate, QApplication
+from qtpy.QtWidgets import QStyledItemDelegate, QApplication, QStyle
 from qtpy.QtCore import Qt
-from qtpy.QtGui import QPainter, QPen, QColor
+from qtpy.QtGui import QPainter, QPen, QColor, QBrush
 
 
 class ItemDelegate(QStyledItemDelegate):
@@ -24,6 +24,19 @@ class ItemDelegate(QStyledItemDelegate):
             option: Style option
             index: Model index
         """
+        # Check if item is selected and paint brighter background
+        if option.state & QStyle.State_Selected:
+            painter.save()
+            # Get current background color and make it 20% brighter
+            bg_color = option.palette.highlight().color()
+            brighter_color = QColor(
+                min(255, int(bg_color.red() * 1.2)),
+                min(255, int(bg_color.green() * 1.2)),
+                min(255, int(bg_color.blue() * 1.2)),
+            )
+            painter.fillRect(option.rect, QBrush(brighter_color))
+            painter.restore()
+
         # Use default painting
         super().paint(painter, option, index)
 

@@ -5,8 +5,9 @@ A simple `qtpy` GUI application that demonstrates drag and drop functionality wi
 ## Features
 
 - **Table Widget**: Displays items from JSON data with drag support
-- **Dual Drop Zones**: Two drop areas for different actions
+- **Dual Drop Zones**: Two drop areas for different actions (also clickable buttons)
 - **Multi-selection**: Select and drag multiple items simultaneously
+- **Visual Feedback**: Selected items show brighter background, drag preview under cursor
 - **Output Area**: Shows processing results with detailed item information
 - **Custom Styling**: Uses prepared CSS theme
 
@@ -41,15 +42,20 @@ drop-off-test/
 - The left panel shows a table with item data loaded from `data.json`
 - Items have attributes: Name, File Path, Product Name, Product Type, Version
 - Items can be selected individually or multiple items at once
+- **Selected items show 20% brighter background** for better visibility
 
 ### Drag and Drop
 1. **Select Items**: Click to select single item, Ctrl+Click for multiple selection
 2. **Drag**: Click and drag selected items from the table
+   - **Semi-transparent preview** appears under cursor showing item count
 3. **Drop**: Drop items onto either drop zone:
    - **Loading to Viewer** (top right)
    - **Adding to Timeline** (bottom right)
 
 ### Drop Zones
+- **Button Interface**: Drop zones are clickable buttons with dashed borders
+- **Click Action**: Select items in table, then click drop zone button to process
+- **Drag & Drop**: Traditional drag and drop still works as before
 - **Visual Feedback**: Zones highlight when dragging items over them
 - **Batch Processing**: Multiple items are processed together
 - **Action Results**: Each drop triggers its respective action
@@ -95,8 +101,12 @@ The test validates:
 ## Usage Tips
 
 - **Multiple Selection**: Use Ctrl+Click or Shift+Click for selecting multiple items
-- **Visual Feedback**: Drop zones change color when items are dragged over them
-- **Batch Operations**: All selected items are processed when dropped
+- **Two Ways to Process**: Either drag & drop OR select items and click drop zone buttons
+- **Visual Feedback**: 
+  - Selected items have brighter background in table
+  - Drag preview shows item count under cursor
+  - Drop zones change color when items are dragged over them
+- **Batch Operations**: All selected items are processed when dropped/clicked
 - **Output History**: The output area maintains a history of all drop actions
 
 ## Customization

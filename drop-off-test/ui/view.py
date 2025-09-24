@@ -8,18 +8,51 @@ from qtpy.QtWidgets import (
     QTableView,
     QTextEdit,
     QLabel,
-    QFrame,
+    QPushButton,
     QSplitter,
 )
 from qtpy.QtCore import Qt
 from qtpy.QtCore import Signal
-from qtpy.QtGui import QFont
+from qtpy.QtGui import QFont, QPainter, QPixmap, QDrag
 
 
-class DropZone(QFrame):
+class DragTableView(QTableView):
+    """Custom table view with drag preview support."""
+
+    def startDrag(self, supportedActions):
+        """Override startDrag to create custom drag pixmap."""
+        indexes = self.selectedIndexes()
+        if not indexes:
+            return
+
+        # Create drag pixmap showing selected rows count
+        selected_rows = set(idx.row() for idx in indexes)
+        pixmap = QPixmap(200, 30)
+        pixmap.fill(Qt.transparent)
+
+        painter = QPainter(pixmap)
+        painter.setOpacity(0.5)
+        painter.fillRect(pixmap.rect(), Qt.darkGray)
+        painter.setOpacity(1.0)
+        painter.setPen(Qt.white)
+        painter.drawText(
+            pixmap.rect(), Qt.AlignCenter, f"{len(selected_rows)} item(s)"
+        )
+        painter.end()
+
+        # Create drag object
+        drag = QDrag(self)
+        drag.setMimeData(self.model().mimeData(indexes))
+        drag.setPixmap(pixmap)
+        drag.setHotSpot(pixmap.rect().center())
+        drag.exec_(supportedActions)
+
+
+class DropZone(QPushButton):
     """Drop zone widget for receiving dragged items."""
 
     item_dropped = Signal(list, str)
+    item_clicked = Signal(str)
 
     def __init__(self, title: str, action_name: str, parent=None):
         """Initialize drop zone.
@@ -29,7 +62,7 @@ class DropZone(QFrame):
             action_name: Action identifier
             parent: Parent widget
         """
-        super().__init__(parent)
+        super().__init__(title, parent)
         self.title = title
         self.action_name = action_name
         self.setup_ui()
@@ -37,21 +70,12 @@ class DropZone(QFrame):
     def setup_ui(self):
         """Setup drop zone UI."""
         self.setAcceptDrops(True)
-        self.setFrameStyle(QFrame.StyledPanel | QFrame.Raised)
         self.setMinimumHeight(120)
         self.setObjectName("dropZone")
-
-        layout = QVBoxLayout(self)
-
-        title_label = QLabel(self.title)
-        title_label.setAlignment(Qt.AlignCenter)
-        title_label.setObjectName("dropZoneTitle")
         font = QFont()
         font.setBold(True)
-        title_label.setFont(font)
-
-        layout.addWidget(title_label)
-        layout.addStretch()
+        self.setFont(font)
+        self.clicked.connect(lambda: self.item_clicked.emit(self.action_name))
 
     def dragEnterEvent(self, event):
         """Handle drag enter event."""
@@ -113,7 +137,7 @@ class MainView(QWidget):
         top_layout = QHBoxLayout(top_widget)
 
         # Left side - Table view
-        self.table_view = QTableView()
+        self.table_view = DragTableView()
         self.table_view.setModel(self.model)
         self.table_view.setItemDelegate(self.delegate)
         self.table_view.setSelectionBehavior(QTableView.SelectRows)
@@ -166,6 +190,8 @@ class MainView(QWidget):
         """Connect widget signals."""
         self.viewer_zone.item_dropped.connect(self.handle_item_drop)
         self.timeline_zone.item_dropped.connect(self.handle_item_drop)
+        self.viewer_zone.item_clicked.connect(self.handle_button_click)
+        self.timeline_zone.item_clicked.connect(self.handle_button_click)
 
     def handle_item_drop(self, items: list, action: str):
         """Handle item drop on drop zones.
@@ -189,6 +215,26 @@ class MainView(QWidget):
             for line in formatted_info.split("\n"):
                 self.output_area.append(f"  {line}")
             self.output_area.append("")
+
+    def handle_button_click(self, action: str):
+        """Handle button click on drop zones with selected items."""
+        selected_indexes = self.table_view.selectedIndexes()
+        if not selected_indexes:
+            return
+
+        # Get unique rows from selected indexes
+        rows = set(
+            index.row() for index in selected_indexes if index.isValid()
+        )
+        items = []
+
+        for row in sorted(rows):
+            item = self.controller.get_item_by_index(row)
+            if item:
+                items.append(item)
+
+        if items:
+            self.handle_item_drop(items, action)
 
     def refresh_table(self):
         """Refresh table data."""

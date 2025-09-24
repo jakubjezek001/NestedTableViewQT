@@ -62,8 +62,9 @@ drop-off-test/
 
 ### Output Area
 - Located at the bottom of the window
-- Shows detailed information about processed items
-- Displays which action was triggered and item attributes
+- **Clears automatically** before each new action
+- Shows detailed information about processed items in structured format
+- Each item displays: Name, Path, Product, Type, Version with action identifier
 
 ## Item Data Structure
 
@@ -98,6 +99,25 @@ The test validates:
 - Module imports
 - MIME data handling
 
+## Output Format
+
+When items are processed, the output area shows:
+```
+Item 1 (Loading to Viewer Action):
+  Name: Character_Rig_v003
+  Path: C:/Projects/Film_A/assets/characters/hero/rig/character_rig_v003.ma
+  Product: Hero Character
+  Type: rig
+  Version: v003
+
+Item 2 (Loading to Viewer Action):
+  Name: Environment_Model_v012
+  Path: C:/Projects/Film_A/assets/environments/forest/model/environment_model_v012.mb
+  Product: Forest Environment
+  Type: model
+  Version: v012
+```
+
 ## Usage Tips
 
 - **Multiple Selection**: Use Ctrl+Click or Shift+Click for selecting multiple items
@@ -107,7 +127,7 @@ The test validates:
   - Drag preview shows item count under cursor
   - Drop zones change color when items are dragged over them
 - **Batch Operations**: All selected items are processed when dropped/clicked
-- **Output History**: The output area maintains a history of all drop actions
+- **Clean Output**: Output area clears before each action for better readability
 
 ## Customization
 

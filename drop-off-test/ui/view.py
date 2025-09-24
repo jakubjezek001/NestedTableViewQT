@@ -200,21 +200,31 @@ class MainView(QWidget):
             items: List of dropped items
             action: Action identifier
         """
+        # Clear output area before showing new results
+        self.output_area.clear()
+
         action_names = {
-            "load_viewer": "Loading to Viewer",
-            "add_timeline": "Adding to Timeline",
+            "load_viewer": "Loading to Viewer Action",
+            "add_timeline": "Adding to Timeline Action",
         }
 
-        action_title = action_names.get(action, action)
-        self.output_area.append(f"\n=== {action_title} Action ===")
-        self.output_area.append(f"Processing {len(items)} item(s):\n")
+        action_title = action_names.get(action, f"{action} Action")
 
         for i, item in enumerate(items, 1):
-            self.output_area.append(f"Item {i}:")
-            formatted_info = self.controller.format_item_info(item)
-            for line in formatted_info.split("\n"):
-                self.output_area.append(f"  {line}")
-            self.output_area.append("")
+            self.output_area.append(f"Item {i} ({action_title}):")
+            self.output_area.append(f"  Name: {item.get('name', 'N/A')}")
+            self.output_area.append(f"  Path: {item.get('file_path', 'N/A')}")
+            self.output_area.append(
+                f"  Product: {item.get('product_name', 'N/A')}"
+            )
+            self.output_area.append(
+                f"  Type: {item.get('product_type', 'N/A')}"
+            )
+            self.output_area.append(f"  Version: {item.get('version', 'N/A')}")
+            if i < len(
+                items
+            ):  # Add blank line between items, but not after last
+                self.output_area.append("")
 
     def handle_button_click(self, action: str):
         """Handle button click on drop zones with selected items."""

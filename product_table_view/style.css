@@ -1,0 +1,697 @@
+/*
+Product Table View Stylesheet
+Adapted from Drop-off Test Application
+
+Color Placeholder System:
+This stylesheet uses color placeholders that are replaced at runtime.
+See ui/ui.py load_styles() method for color mapping.
+
+Color Categories:
+- {color:font} - Primary text color
+- {color:font-disabled} - Disabled text color
+- {color:font-hover} - Hover text color
+- {color:bg} - Main background color
+- {color:bg-inputs} - Input field backgrounds
+- {color:bg-buttons} - Button backgrounds
+- {color:bg-view} - Table/list view backgrounds
+- {color:border} - Standard border color
+- {color:border-hover} - Hover border color
+- {color:border-focus} - Focus border color
+
+Custom Classes for Nested Table View:
+- .required-column - Required column styling
+- .required-header - Required header styling
+- .disabled-cell - Disabled cell styling
+- .expansion-indicator - Expand/collapse indicators
+- .repr-header-section - Representation section headers
+- .repr-header-column - Representation column headers
+*/
+
+* {
+    font-size: 10pt;
+    font-family: "Noto Sans", "Segoe UI", "Arial", sans-serif;
+    font-weight: 450;
+    outline: none;
+    icon-size: 16px;
+}
+
+QWidget {
+    color: {color:font};
+    background: {color:bg};
+    border-radius: 0px;
+}
+
+QWidget:disabled {
+    color: {color:font-disabled};
+}
+
+QScrollArea {
+    border: none;
+}
+
+QLabel {
+    background: transparent;
+}
+
+/* === INPUT CONTROLS === */
+QAbstractSpinBox, QLineEdit, QPlainTextEdit, QTextEdit {
+    border: 1px solid {color:border};
+    border-radius: 0.2em;
+    background: {color:bg-inputs};
+    padding: 0.1em;
+}
+
+QAbstractSpinBox:disabled, QLineEdit:disabled, QPlainTextEdit:disabled, QTextEdit:disabled {
+    background: {color:bg-inputs-disabled};
+}
+
+QAbstractSpinBox:hover, QLineEdit:hover, QPlainTextEdit:hover, QTextEdit:hover {
+    border-color: {color:border-hover};
+}
+
+QAbstractSpinBox:focus, QLineEdit:focus, QPlainTextEdit:focus, QTextEdit:focus {
+    border-color: {color:border-focus};
+}
+
+/* === BUTTONS === */
+QPushButton {
+    text-align: center;
+    border: 0px solid transparent;
+    border-radius: 0.2em;
+    padding: 3px 5px 3px 5px;
+    background: {color:bg-buttons};
+    min-width: 0px;
+}
+
+QPushButton:hover {
+    background: {color:bg-buttons-hover};
+    color: {color:font-hover};
+}
+
+QPushButton:pressed {
+    background: {color:bg-buttons-pressed};
+}
+
+QPushButton:disabled {
+    background: {color:bg-buttons-disabled};
+}
+
+QPushButton:checked {
+    background: {color:bg-buttons-checked};
+    color: {color:font-hover};
+}
+
+QToolButton {
+    border: 0px solid transparent;
+    background: {color:bg-buttons};
+    border-radius: 0.2em;
+    padding: 2px;
+}
+
+QToolButton:hover {
+    background: {color:bg-buttons-hover};
+    color: {color:font-hover};
+}
+
+QToolButton:disabled {
+    background: {color:bg-buttons-disabled};
+}
+
+/* === COMBO BOX === */
+QComboBox {
+    border: 1px solid {color:border};
+    border-radius: 0.2em;
+    padding: 1px 3px 1px 3px;
+    background: {color:bg-inputs};
+}
+
+QComboBox:hover {
+    border-color: {color:border-hover};
+}
+
+QComboBox:disabled {
+    background: {color:bg-inputs-disabled};
+}
+
+QComboBox QAbstractItemView {
+    border: 1px solid {color:border};
+    background: {color:bg-inputs};
+}
+
+QComboBox QAbstractItemView::item:selected {
+    background: {color:bg-view-hover};
+    color: {color:font};
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: center right;
+    width: 15px;
+    border-style: none;
+    border-left-style: solid;
+    border-left-color: {color:border};
+    border-left-width: 1px;
+}
+
+/* === MENU SYSTEM === */
+QMenuBar {
+    background: {color:bg-menu};
+    border-bottom: 1px solid {color:border};
+    color: {color:font};
+}
+
+QMenuBar::item {
+    background: transparent;
+    padding: 4px 8px;
+}
+
+QMenuBar::item:selected {
+    background: {color:bg-menu-hover};
+}
+
+QMenuBar::item:pressed {
+    background: {color:bg-menu-pressed};
+}
+
+QMenu {
+    border: 1px solid {color:border};
+    background: {color:bg-inputs};
+}
+
+QMenu::icon {
+    padding-left: 7px;
+}
+
+QMenu::item {
+    padding: 6px 25px 6px 10px;
+}
+
+QMenu::item:selected {
+    background: {color:bg-view-hover};
+}
+
+QMenu::separator {
+    background: {color:bg-menu-separator};
+    height: 2px;
+    margin-right: 5px;
+}
+
+/* === SPLITTER === */
+QSplitter::handle {
+    border: 3px solid transparent;
+    background: {color:bg-splitter-handle};
+}
+
+QSplitter::handle:hover {
+    background: {color:bg-splitter-handle-hover};
+}
+
+/* === TABLE AND TREE VIEWS === */
+QAbstractItemView {
+    border: 0px solid {color:border};
+    border-radius: 0px;
+    background: {color:bg-view};
+    alternate-background-color: {color:bg-view-alternate};
+    selection-background-color: {color:bg-view-selection};
+    gridline-color: {color:border};
+    font-size: 11px;
+}
+
+QAbstractItemView::item {
+    border: none;
+    padding: 4px;
+}
+
+QAbstractItemView:disabled {
+    background: {color:bg-view-disabled};
+    alternate-background-color: {color:bg-view-alternate-disabled};
+}
+
+QAbstractItemView::item:hover {
+    background: {color:bg-view-hover};
+}
+
+QAbstractItemView::item:selected {
+    background: {color:bg-view-selection};
+    color: {color:font-view-selection};
+}
+
+QAbstractItemView::item:selected:active {
+    color: {color:font-view-selection};
+}
+
+QAbstractItemView::item:selected:!active {
+    background: {color:bg-view-selection};
+    color: {color:font-view-selection};
+}
+
+QAbstractItemView::item:selected:hover {
+    background: {color:bg-view-selection-hover};
+}
+
+/* === TABLE VIEW SPECIFIC === */
+QTableView {
+    background-color: {color:bg-view};
+    alternate-background-color: {color:bg-view-alternate};
+    selection-background-color: {color:bg-view-selection};
+    selection-color: {color:font-view-selection};
+    gridline-color: {color:border};
+    border: 1px solid {color:border};
+    font-size: 11px;
+}
+
+QTableView::item {
+    padding: 4px;
+    border: none;
+}
+
+QTableView::item:selected {
+    background-color: {color:bg-view-selection};
+    color: {color:font-view-selection};
+}
+
+QTableView::item:hover {
+    background-color: {color:bg-view-hover};
+}
+
+/* === HEADER VIEWS === */
+QHeaderView::section {
+    background: {color:bg-header};
+    color: {color:font-header};
+    padding: 6px 4px;
+    border: 1px solid {color:border-header};
+    font-weight: bold;
+    font-size: 11px;
+}
+
+QHeaderView::section:hover {
+    background: {color:bg-header-hover};
+}
+
+QHeaderView::section:first {
+    border-left: none;
+}
+
+QHeaderView::section:last {
+    border-right: none;
+}
+
+/* === TREE VIEW BRANCHES === */
+QTreeView::branch {
+    background: {color:bg-view};
+}
+
+QTreeView::branch:hover {
+    background: {color:bg-view-hover};
+}
+
+QTreeView::branch:selected {
+    background: {color:bg-view-selection};
+}
+
+QAbstractItemView::branch:open:has-children:!has-siblings,
+QAbstractItemView::branch:open:has-children:has-siblings {
+    border-image: none;
+    background: {color:bg-view};
+}
+
+QAbstractItemView::branch:has-children:!has-siblings:closed,
+QAbstractItemView::branch:closed:has-children:has-siblings {
+    border-image: none;
+    background: {color:bg-view};
+}
+
+/* === GROUP BOX === */
+QGroupBox {
+    font-weight: bold;
+    border: 2px solid {color:border};
+    border-radius: 5px;
+    margin: 3px 0px;
+    padding-top: 8px;
+    background: {color:bg-group};
+    color: {color:font};
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 8px 0 8px;
+    color: {color:font-group-title};
+}
+
+/* === STATUS BAR === */
+QStatusBar {
+    background: {color:bg-statusbar};
+    border-top: 1px solid {color:border};
+    color: {color:font};
+}
+
+/* === SCROLL BARS === */
+QScrollBar {
+    background: {color:bg-scroll};
+    border-radius: 4px;
+    border: 1px transparent {color:bg-scroll};
+}
+
+QScrollBar:horizontal {
+    height: 15px;
+    margin: 3px 3px 3px 6px;
+}
+
+QScrollBar:vertical {
+    width: 15px;
+    margin: 6px 3px 3px 3px;
+}
+
+QScrollBar::handle {
+    background: {color:bg-scroll-handle};
+    border-radius: 4px;
+}
+
+QScrollBar::handle:horizontal {
+    min-width: 5px;
+}
+
+QScrollBar::handle:vertical {
+    min-height: 5px;
+}
+
+QScrollBar::handle:hover {
+    background: {color:bg-scroll-handle-hover};
+}
+
+QScrollBar::add-line, QScrollBar::sub-line {
+    background: none;
+    border: none;
+    width: 0px;
+    height: 0px;
+}
+
+QScrollBar::add-page, QScrollBar::sub-page {
+    background: none;
+}
+
+/* === NESTED TABLE VIEW CUSTOM STYLES === */
+
+/* Required columns styling */
+.required-column {
+    background-color: {color:required-bg};
+    border: 1px solid {color:required-border};
+}
+
+.required-header {
+    background-color: {color:required-header-bg};
+    border: 2px solid {color:required-border};
+    font-weight: bold;
+    color: {color:required-text};
+}
+
+/* Disabled cells styling */
+.disabled-cell {
+    background-color: {color:disabled-bg};
+    color: {color:disabled-text};
+    border: 1px solid {color:disabled-border};
+}
+
+/* Expansion indicator styling */
+.expansion-indicator {
+    font-size: 12px;
+    color: {color:font};
+    background-color: transparent;
+    text-align: center;
+    font-weight: bold;
+}
+
+.expansion-indicator:hover {
+    background-color: {color:expansion-hover};
+    color: {color:font-hover};
+    border-radius: 2px;
+}
+
+/* Representation header styling */
+.repr-header-section {
+    background-color: {color:repr-header-section-bg};
+    color: {color:repr-header-section-text};
+    font-weight: bold;
+    font-size: 12px;
+    text-align: center;
+    border: 2px solid {color:repr-header-border};
+    padding: 6px;
+}
+
+.repr-header-column {
+    background-color: {color:repr-header-column-bg};
+    color: {color:repr-header-column-text};
+    font-weight: bold;
+    font-style: italic;
+    border: 2px solid {color:repr-header-border};
+    padding: 3px 6px;
+}
+
+.repr-header-required {
+    background-color: {color:required-header-bg};
+    color: {color:required-text};
+    border: 2px solid {color:required-border};
+}
+
+/* === CUSTOM LABEL STYLES === */
+QLabel#title-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: {color:font-title};
+}
+
+QLabel#info-label, QLabel#status-label, QLabel#selection-label {
+    color: {color:font-secondary};
+    font-size: 10px;
+}
+
+QLabel#stats-label {
+    color: {color:font-stats};
+    font-size: 11px;
+}
+
+QLabel#instructions-label {
+    font-size: 10px;
+    color: {color:font-instructions};
+}
+
+/* === FRAME SEPARATORS === */
+QFrame[frameShape="4"] {
+    /* HLine */
+    color: {color:separator};
+    background-color: {color:separator};
+    height: 1px;
+}
+
+QFrame[frameShape="5"] {
+    /* VLine */
+    color: {color:separator};
+    background-color: {color:separator};
+    width: 1px;
+}
+
+/* === PROGRESS BAR === */
+QProgressBar {
+    border: 1px solid {color:border};
+    font-weight: bold;
+    text-align: center;
+    background: {color:bg-progress};
+    color: {color:font};
+}
+
+QProgressBar:horizontal {
+    height: 20px;
+}
+
+QProgressBar:vertical {
+    width: 20px;
+}
+
+QProgressBar::chunk {
+    background: {color:bg-progress-chunk};
+    border-radius: 2px;
+}
+
+/* === TOOLTIPS === */
+QToolTip {
+    background-color: {color:bg-tooltip};
+    color: {color:font-tooltip};
+    border: 1px solid {color:border-tooltip};
+    padding: 4px;
+    border-radius: 3px;
+    font-size: 10px;
+}
+
+/* === CHECKBOXES === */
+QCheckBox {
+    background: transparent;
+    spacing: 5px;
+}
+
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+}
+
+QCheckBox::indicator:unchecked {
+    border: 1px solid {color:border};
+    background: {color:bg-checkbox};
+}
+
+QCheckBox::indicator:checked {
+    border: 1px solid {color:border-focus};
+    background: {color:bg-checkbox-checked};
+}
+
+QCheckBox::indicator:hover {
+    border-color: {color:border-hover};
+}
+
+QCheckBox::indicator:disabled {
+    background: {color:bg-checkbox-disabled};
+    border-color: {color:border-disabled};
+}
+
+/* === RADIO BUTTONS === */
+QRadioButton {
+    background: transparent;
+    spacing: 5px;
+}
+
+QRadioButton::indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+}
+
+QRadioButton::indicator:unchecked {
+    border: 1px solid {color:border};
+    background: {color:bg-radio};
+}
+
+QRadioButton::indicator:checked {
+    border: 1px solid {color:border-focus};
+    background: {color:bg-radio-checked};
+}
+
+QRadioButton::indicator:hover {
+    border-color: {color:border-hover};
+}
+
+/* === SPECIAL BUTTON STYLES === */
+QPushButton#expandAllBtn, QPushButton#collapseAllBtn {
+    background: {color:bg-buttons-primary};
+    color: {color:font-buttons-primary};
+    font-weight: bold;
+}
+
+QPushButton#expandAllBtn:hover, QPushButton#collapseAllBtn:hover {
+    background: {color:bg-buttons-primary-hover};
+}
+
+QPushButton#refreshBtn {
+    background: {color:bg-buttons-secondary};
+    color: {color:font-buttons-secondary};
+}
+
+QPushButton#refreshBtn:hover {
+    background: {color:bg-buttons-secondary-hover};
+}
+
+/* === FILE DIALOG BUTTONS === */
+QPushButton#openBtn, QPushButton#exportBtn {
+    background: {color:bg-buttons-file};
+    color: {color:font-buttons-file};
+}
+
+QPushButton#openBtn:hover, QPushButton#exportBtn:hover {
+    background: {color:bg-buttons-file-hover};
+}
+
+/* === AUTO-REFRESH TOGGLE === */
+QPushButton#autoRefreshBtn {
+    background: {color:bg-buttons-toggle};
+    color: {color:font-buttons-toggle};
+}
+
+QPushButton#autoRefreshBtn:checked {
+    background: {color:bg-buttons-toggle-checked};
+    color: {color:font-buttons-toggle-checked};
+    border: 1px solid {color:border-focus};
+}
+
+QPushButton#autoRefreshBtn:hover {
+    background: {color:bg-buttons-toggle-hover};
+}
+
+/*
+=== COLOR REFERENCE ===
+This stylesheet uses placeholder colors that should be replaced at runtime.
+Default dark theme color mapping (see ui.py):
+
+Primary Colors:
+{color:font} → #E0E0E0 (Light gray text)
+{color:bg} → #2B2B2B (Dark background)
+{color:font-disabled} → #808080 (Disabled text)
+
+Input Controls:
+{color:border} → #555555 (Standard borders)
+{color:bg-inputs} → #3A3A3A (Input backgrounds)
+{color:bg-inputs-disabled} → #2B2B2B (Disabled inputs)
+{color:border-hover} → #4A90E2 (Hover borders)
+{color:border-focus} → #4A90E2 (Focus borders)
+
+Buttons:
+{color:bg-buttons} → #404040 (Button backgrounds)
+{color:bg-buttons-hover} → #4A4A4A (Button hover)
+{color:font-hover} → #FFFFFF (Hover text)
+{color:bg-buttons-disabled} → #2B2B2B (Disabled buttons)
+
+Views:
+{color:bg-view} → #353535 (Table/list backgrounds)
+{color:bg-view-alternate} → #3A3A3A (Alternate row color)
+{color:bg-view-hover} → #484848 (Hover row)
+{color:bg-view-selection} → #4A90E2 (Selected row)
+{color:font-view-selection} → #FFFFFF (Selected text)
+
+Headers:
+{color:bg-header} → #404040 (Header background)
+{color:font-header} → #E0E0E0 (Header text)
+{color:border-header} → #555555 (Header borders)
+
+Required Columns:
+{color:required-bg} → #5D4E37 (Brown-yellow background)
+{color:required-border} → #8B7355 (Gold border)
+{color:required-text} → #FFD700 (Gold text)
+{color:required-header-bg} → #5D4E37 (Required header bg)
+
+Disabled Cells:
+{color:disabled-bg} → #2F2F2F (Very dark gray)
+{color:disabled-text} → #707070 (Medium gray)
+{color:disabled-border} → #444444 (Dark border)
+
+Representation Headers:
+{color:repr-header-section-bg} → #2D3E50 (Dark slate blue)
+{color:repr-header-section-text} → #FFFFFF (White)
+{color:repr-header-column-bg} → #34495E (Blue-gray)
+{color:repr-header-column-text} → #ECF0F1 (Light gray)
+{color:repr-header-border} → #1A252F (Dark blue)
+
+Special Elements:
+{color:expansion-hover} → #4A4A70 (Blue hover for indicators)
+{color:bg-tooltip} → #404040 (Tooltip background)
+{color:font-tooltip} → #E0E0E0 (Tooltip text)
+{color:separator} → #555555 (Separator lines)
+
+To use this stylesheet:
+1. Load the CSS content
+2. Replace color placeholders with actual color values
+3. Apply to QApplication or specific widgets
+4. Use CSS classes (.required-column, .disabled-cell, etc.) by setting object names
+
+Example usage in Python:
+widget.setObjectName("required-column")
+widget.style().unpolish(widget)
+widget.style().polish(widget)
+*/

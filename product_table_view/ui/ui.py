@@ -47,6 +47,7 @@ class MainWindow(QMainWindow):
         self.setup_ui()
         self.setup_menu()
         self.setup_statusbar()
+        self.load_styles()
         self.setup_model()
 
         # Auto-refresh timer
@@ -367,6 +368,153 @@ Required: {len(repr_required)}<br>
 </ul>
             """,
         )
+
+    def load_styles(self):
+        """Load and apply CSS styles with color placeholder replacement."""
+        css_file = Path(__file__).parent.parent / "style.css"
+
+        if css_file.exists():
+            try:
+                with open(css_file, "r", encoding="utf-8") as f:
+                    stylesheet = f.read()
+
+                # Replace color placeholders with actual values
+                color_map = {
+                    # Primary colors
+                    "{color:font}": "#E0E0E0",
+                    "{color:bg}": "#2B2B2B",
+                    "{color:font-disabled}": "#808080",
+                    "{color:font-hover}": "#FFFFFF",
+                    "{color:font-title}": "#FFFFFF",
+                    "{color:font-secondary}": "#B0B0B0",
+                    "{color:font-stats}": "#D0D0D0",
+                    "{color:font-instructions}": "#B0B0B0",
+                    "{color:font-group-title}": "#B0B0B0",
+                    # Borders
+                    "{color:border}": "#555555",
+                    "{color:border-hover}": "#4A90E2",
+                    "{color:border-focus}": "#4A90E2",
+                    "{color:border-header}": "#555555",
+                    "{color:border-tooltip}": "#666666",
+                    "{color:border-disabled}": "#444444",
+                    # Backgrounds - inputs
+                    "{color:bg-inputs}": "#3A3A3A",
+                    "{color:bg-inputs-disabled}": "#2B2B2B",
+                    # Backgrounds - buttons
+                    "{color:bg-buttons}": "#404040",
+                    "{color:bg-buttons-hover}": "#4A4A4A",
+                    "{color:bg-buttons-pressed}": "#3A3A3A",
+                    "{color:bg-buttons-disabled}": "#2B2B2B",
+                    "{color:bg-buttons-checked}": "#4A90E2",
+                    "{color:bg-buttons-primary}": "#4A90E2",
+                    "{color:bg-buttons-primary-hover}": "#357ABD",
+                    "{color:bg-buttons-secondary}": "#4A4A4A",
+                    "{color:bg-buttons-secondary-hover}": "#565656",
+                    "{color:bg-buttons-file}": "#484848",
+                    "{color:bg-buttons-file-hover}": "#565656",
+                    "{color:bg-buttons-toggle}": "#404040",
+                    "{color:bg-buttons-toggle-hover}": "#4A4A4A",
+                    "{color:bg-buttons-toggle-checked}": "#4A90E2",
+                    "{color:font-buttons-primary}": "#FFFFFF",
+                    "{color:font-buttons-secondary}": "#E0E0E0",
+                    "{color:font-buttons-file}": "#E0E0E0",
+                    "{color:font-buttons-toggle}": "#E0E0E0",
+                    "{color:font-buttons-toggle-checked}": "#FFFFFF",
+                    # Backgrounds - views
+                    "{color:bg-view}": "#353535",
+                    "{color:bg-view-alternate}": "#3A3A3A",
+                    "{color:bg-view-hover}": "#484848",
+                    "{color:bg-view-selection}": "#4A90E2",
+                    "{color:bg-view-selection-hover}": "#357ABD",
+                    "{color:bg-view-disabled}": "#2B2B2B",
+                    "{color:bg-view-alternate-disabled}": "#303030",
+                    "{color:font-view-selection}": "#FFFFFF",
+                    # Backgrounds - headers
+                    "{color:bg-header}": "#404040",
+                    "{color:bg-header-hover}": "#4A4A4A",
+                    "{color:font-header}": "#E0E0E0",
+                    # Backgrounds - other elements
+                    "{color:bg-group}": "#353535",
+                    "{color:bg-statusbar}": "#404040",
+                    "{color:bg-menu}": "#404040",
+                    "{color:bg-menu-hover}": "#4A4A4A",
+                    "{color:bg-menu-pressed}": "#3A3A3A",
+                    "{color:bg-menu-separator}": "#555555",
+                    "{color:bg-splitter-handle}": "#555555",
+                    "{color:bg-splitter-handle-hover}": "#777777",
+                    "{color:bg-tooltip}": "#404040",
+                    "{color:font-tooltip}": "#E0E0E0",
+                    "{color:separator}": "#555555",
+                    # Scroll bars
+                    "{color:bg-scroll}": "#404040",
+                    "{color:bg-scroll-handle}": "#707070",
+                    "{color:bg-scroll-handle-hover}": "#808080",
+                    # Progress bars
+                    "{color:bg-progress}": "#353535",
+                    "{color:bg-progress-chunk}": "#4A90E2",
+                    # Checkboxes and radio buttons
+                    "{color:bg-checkbox}": "#3A3A3A",
+                    "{color:bg-checkbox-checked}": "#4A90E2",
+                    "{color:bg-checkbox-disabled}": "#2B2B2B",
+                    "{color:bg-radio}": "#3A3A3A",
+                    "{color:bg-radio-checked}": "#4A90E2",
+                    # Required columns styling
+                    "{color:required-bg}": "#5D4E37",  # Dark brown-yellow
+                    "{color:required-border}": "#8B7355",  # Dark gold border
+                    "{color:required-text}": "#FFD700",  # Bright gold text
+                    "{color:required-header-bg}": "#5D4E37",  # Required header bg
+                    # Disabled cells styling
+                    "{color:disabled-bg}": "#2F2F2F",  # Very dark gray
+                    "{color:disabled-text}": "#707070",  # Medium gray
+                    "{color:disabled-border}": "#444444",  # Dark border
+                    # Expansion indicator styling
+                    "{color:expansion-hover}": "#4A4A70",  # Blue hover for indicators
+                    # Representation headers
+                    "{color:repr-header-section-bg}": "#2D3E50",  # Dark slate blue
+                    "{color:repr-header-section-text}": "#FFFFFF",  # White
+                    "{color:repr-header-column-bg}": "#34495E",  # Blue-gray
+                    "{color:repr-header-column-text}": "#ECF0F1",  # Light gray
+                    "{color:repr-header-border}": "#1A252F",  # Dark blue
+                }
+
+                for placeholder, color in color_map.items():
+                    stylesheet = stylesheet.replace(placeholder, color)
+
+                # Add any additional custom CSS for specific components
+                custom_css = """
+                /* Additional custom styling for nested table view */
+                QPushButton#expandAllBtn {
+                    min-width: 100px;
+                }
+                QPushButton#collapseAllBtn {
+                    min-width: 100px;
+                }
+                QPushButton#refreshBtn {
+                    min-width: 80px;
+                }
+                QPushButton#autoRefreshBtn {
+                    min-width: 120px;
+                }
+                """
+
+                self.setStyleSheet(stylesheet + custom_css)
+
+                # Set object names for styled buttons
+                self.expand_all_btn.setObjectName("expandAllBtn")
+                self.collapse_all_btn.setObjectName("collapseAllBtn")
+                self.refresh_btn.setObjectName("refreshBtn")
+                self.auto_refresh_btn.setObjectName("autoRefreshBtn")
+
+            except Exception as e:
+                print(f"Error loading styles: {e}")
+                # Fallback to basic dark theme
+                self.setStyleSheet("""
+                QMainWindow { background-color: #2B2B2B; color: #E0E0E0; }
+                QWidget { background-color: #2B2B2B; color: #E0E0E0; }
+                QPushButton { background-color: #404040; color: #E0E0E0; padding: 4px 8px; }
+                QPushButton:hover { background-color: #4A4A4A; }
+                QTableView { background-color: #353535; color: #E0E0E0; }
+                """)
 
     def closeEvent(self, event):
         """Handle application close event."""

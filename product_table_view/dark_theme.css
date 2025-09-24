@@ -1,4 +1,23 @@
-/* NestedTableViewQT Dark Theme Stylesheet */
+/* NestedTableViewQT Dark Theme Stylesheet - LEGACY */
+/*
+NOTICE: This file is now LEGACY and has been replaced by the new styling system.
+
+The application now uses style.css with color placeholders that are replaced at runtime.
+This provides better flexibility and follows the same pattern as the drop-off-test application.
+
+New styling system features:
+- Color placeholder replacement (e.g., {color:font} → #E0E0E0)
+- Centralized color management in ui/styles.py
+- Runtime theme switching capability
+- Better maintainability and consistency
+
+To use the new system:
+1. Main stylesheet: style.css (with color placeholders)
+2. Color management: ui/styles.py (StyleManager class)
+3. Application: Automatically loads style.css via ui/ui.py load_styles()
+
+This file is kept for reference and fallback purposes.
+*/
 /* This file contains dark theme styling for the application */
 
 /* === MAIN APPLICATION WINDOW === */

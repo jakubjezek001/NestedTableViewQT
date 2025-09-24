@@ -40,8 +40,9 @@ def setup_application():
     # app.setAttribute(Qt.AA_EnableHighDpiScaling, True)  # Deprecated
     # app.setAttribute(Qt.AA_UseHighDpiPixmaps, True)     # Deprecated
 
-    # Load and apply CSS styles
-    load_and_apply_styles(app)
+    # Load and apply CSS styles with color placeholders
+    if not load_and_apply_styles(app):
+        print("Warning: Failed to load CSS styles, using default appearance")
 
     return app
 

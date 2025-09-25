@@ -1,0 +1,158 @@
+{
+  "ProductItems": [
+    {
+      "id": "ProdItem0",
+      "data": {
+        "Enabled": true,
+        "Folder Path": "/projects/movie_shot_001/comp",
+        "Task Name": "Compositing",
+        "Product Type": "render",
+        "Product Variant": "beauty",
+        "Version": "v003",
+        "Comment": "Final comp with color correction",
+        "Width": 1920,
+        "Height": 1080,
+        "Pixel Aspect": 1.0,
+        "Framerange": "1001-1120",
+        "Handles": 8,
+        "FPS": 24.0
+      },
+      "RepresentationItems": [
+        {
+          "id": "ReprItem0",
+          "data": {
+            "Enabled": false,
+            "File Path": "/projects/movie_shot_001/comp/renders/beauty_v003.####.exr",
+            "Name": "beauty_main",
+            "Extension": "exr",
+            "Tags": "beauty,final"
+          }
+        },
+        {
+          "id": "ReprItem1",
+          "data": {
+            "Enabled": true,
+            "File Path": "/projects/movie_shot_001/comp/renders/beauty_v003.mov",
+            "Name": "beauty_preview",
+            "Extension": "mov",
+            "Tags": "preview,h264",
+            "Colourspace": "Rec709",
+            "Slate Exists": true,
+            "FPS": "24.0",
+            "Framerange": "1001-1120"
+          }
+        },
+        {
+          "id": "ReprItem2",
+          "data": {
+            "Enabled": true,
+            "File Path": "/projects/movie_shot_001/comp/renders/beauty_v003_thumb.jpg",
+            "Name": "beauty_thumbnail",
+            "Extension": "jpg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ProdItem1",
+      "data": {
+        "Enabled": true,
+        "Folder Path": "/projects/movie_shot_002/animation",
+        "Task Name": "Animation",
+        "Product Type": "cache",
+        "Product Variant": "main",
+        "Version": "v005",
+        "Comment": "Hero character animation approved"
+      },
+      "RepresentationItems": [
+        {
+          "id": "ReprItem0",
+          "data": {
+            "Enabled": true,
+            "File Path": "/projects/movie_shot_002/animation/cache/hero_v005.abc",
+            "Name": "hero_alembic",
+            "Extension": "abc",
+            "Tags": "cache,alembic",
+            "Data": "geometric_cache"
+          }
+        },
+        {
+          "id": "ReprItem1",
+          "data": {
+            "Enabled": true,
+            "File Path": "/projects/movie_shot_002/animation/cache/hero_v005.fbx",
+            "Name": "hero_fbx",
+            "Extension": "fbx",
+            "Tags": "export,fbx"
+          }
+        },
+        {
+          "id": "ReprItem2",
+          "data": {
+            "Enabled": true,
+            "File Path": "/projects/movie_shot_002/animation/preview/hero_v005.mp4",
+            "Name": "hero_playblast",
+            "Extension": "mp4"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ProdItem2",
+      "data": {
+        "Enabled": false,
+        "Folder Path": "/projects/movie_shot_003/lighting",
+        "Task Name": "Lighting",
+        "Product Type": "render",
+        "Product Variant": "diffuse",
+        "Version": "v002",
+        "Comment": "Lighting pass for environment",
+        "Width": 2048,
+        "Height": 1152,
+        "Pixel Aspect": 1.0,
+        "Framerange": "1101-1200",
+        "Handles": 12,
+        "FPS": 25.0
+      },
+      "RepresentationItems": [
+        {
+          "id": "ReprItem0",
+          "data": {
+            "Enabled": true,
+            "File Path": "/projects/movie_shot_003/lighting/renders/diffuse_v002.####.exr",
+            "Name": "diffuse_pass",
+            "Extension": "exr",
+            "Tags": "diffuse,aov",
+            "Colourspace": "ACEScg",
+            "Slate Exists": false,
+            "FPS": 25.0,
+            "Framerange": "1101-1200"
+          }
+        },
+        {
+          "id": "ReprItem1",
+          "data": {
+            "Enabled": true,
+            "File Path": "/projects/movie_shot_003/lighting/renders/specular_v002.####.exr",
+            "Name": "specular_pass",
+            "Extension": "exr",
+            "Tags": "specular,aov",
+            "Colourspace": "ACEScg",
+            "Slate Exists": false,
+            "FPS": 25.0,
+            "Framerange": "1101-1200"
+          }
+        },
+        {
+          "id": "ReprItem2",
+          "data": {
+            "Enabled": true,
+            "File Path": "/projects/movie_shot_003/lighting/preview/lighting_v002.jpg",
+            "Name": "lighting_still",
+            "Extension": "jpg"
+          }
+        }
+      ]
+    }
+  ]
+}

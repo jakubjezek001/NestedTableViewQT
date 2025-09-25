@@ -28,7 +28,9 @@ class ProductItemsTableModel(QAbstractTableModel):
     def columnCount(self, parent=QModelIndex()):
         if parent.isValid():
             return 0
-        return len(self._columns) + 1  # +1 for expansion indicator column
+        return (
+            len(self._columns) + 2
+        )  # +1 for enabled column, +1 for expansion indicator column
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
@@ -38,14 +40,21 @@ class ProductItemsTableModel(QAbstractTableModel):
         col = index.column()
 
         if role == Qt.DisplayRole or role == Qt.EditRole:
-            # First column is expansion indicator
+            # First column is enabled checkbox
             if col == 0:
+                enabled = self.controller.get_product_enabled(row)
+                if role == Qt.DisplayRole:
+                    return "✓" if enabled else "✗"
+                return enabled
+
+            # Second column is expansion indicator
+            if col == 1:
                 if role == Qt.DisplayRole:
                     return "▼" if row in self.expanded_rows else "▶"
                 return None
 
             # Get product data
-            column_name = self._columns[col - 1]
+            column_name = self._columns[col - 2]
             product_data = self.controller.get_product_data_for_row(row)
             value = product_data.get(column_name, None)
 
@@ -55,33 +64,41 @@ class ProductItemsTableModel(QAbstractTableModel):
             return str(value)
 
         elif role == Qt.FontRole:
-            if col == 0:  # Expansion indicator column
+            if col == 0:  # Enabled checkbox column
+                font = QFont()
+                font.setPointSize(14)
+                return font
+            elif col == 1:  # Expansion indicator column
                 font = QFont()
                 font.setPointSize(12)
                 return font
 
         elif role == Qt.TextAlignmentRole:
-            if col == 0:  # Center align expansion indicator
+            if (
+                col == 0 or col == 1
+            ):  # Center align enabled checkbox and expansion indicator
                 return Qt.AlignCenter
 
         elif role == Qt.UserRole:
             # Return the raw value for editing
             if col == 0:
+                return self.controller.get_product_enabled(row)
+            elif col == 1:
                 return None
-            column_name = self._columns[col - 1]
+            column_name = self._columns[col - 2]
             product_data = self.controller.get_product_data_for_row(row)
             return product_data.get(column_name, None)
 
         elif role == Qt.UserRole + 1:  # Custom role for required status
-            if col == 0:
+            if col == 0 or col == 1:
                 return False
-            column_name = self._columns[col - 1]
+            column_name = self._columns[col - 2]
             return self.controller.is_required_column(column_name)
 
         elif role == Qt.UserRole + 2:  # Custom role for data availability
-            if col == 0:
-                return True  # Expansion indicator always has data
-            column_name = self._columns[col - 1]
+            if col == 0 or col == 1:
+                return True  # Enabled checkbox and expansion indicator always have data
+            column_name = self._columns[col - 2]
             return self.controller.has_product_data_for_column(
                 row, column_name
             )
@@ -95,11 +112,20 @@ class ProductItemsTableModel(QAbstractTableModel):
         row = index.row()
         col = index.column()
 
-        # Can't edit expansion indicator
+        # Handle enabled checkbox
         if col == 0:
+            success = self.controller.set_product_enabled(row, bool(value))
+            if success:
+                self.dataChanged.emit(index, index, [role])
+                # Auto-save changes to file
+                self.controller.save_data()
+            return success
+
+        # Can't edit expansion indicator
+        if col == 1:
             return False
 
-        column_name = self._columns[col - 1]
+        column_name = self._columns[col - 2]
         success = self.controller.update_product_data(row, column_name, value)
 
         if success:
@@ -115,14 +141,19 @@ class ProductItemsTableModel(QAbstractTableModel):
 
         flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
-        # Expansion indicator column is not editable
+        # Enabled checkbox column is editable
         if index.column() == 0:
+            flags |= Qt.ItemIsEditable
+            return flags
+
+        # Expansion indicator column is not editable
+        if index.column() == 1:
             return flags
 
         # Only allow editing if this product item has data for this column
         row = index.row()
         col = index.column()
-        column_name = self._columns[col - 1]
+        column_name = self._columns[col - 2]
         if self.controller.has_product_data_for_column(row, column_name):
             flags |= Qt.ItemIsEditable
 
@@ -132,16 +163,18 @@ class ProductItemsTableModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
                 if section == 0:
+                    return "Enabled"  # Header for enabled column
+                elif section == 1:
                     return ""  # Empty header for expansion column
-                elif section <= len(self._columns):
-                    return self._columns[section - 1]
+                elif section - 2 < len(self._columns):
+                    return self._columns[section - 2]
             elif orientation == Qt.Vertical:
                 return str(section + 1)
 
         elif role == Qt.UserRole + 1:  # Custom role for required status
-            if orientation == Qt.Horizontal and section > 0:
-                if section <= len(self._columns):
-                    column_name = self._columns[section - 1]
+            if orientation == Qt.Horizontal and section > 1:
+                if section - 2 < len(self._columns):
+                    column_name = self._columns[section - 2]
                     return self.controller.is_required_column(column_name)
 
         return None
@@ -156,7 +189,7 @@ class ProductItemsTableModel(QAbstractTableModel):
             expanded = True
 
         # Update the expansion indicator
-        index = self.createIndex(row, 0)
+        index = self.createIndex(row, 1)
         self.dataChanged.emit(index, index, [Qt.DisplayRole])
 
         # Emit signal for view to handle
@@ -411,13 +444,13 @@ class NestedTableProxyModel(QAbstractTableModel):
             # Handle representation header row
             if role == Qt.DisplayRole:
                 if index.column() == 0:
+                    return "Enabled"
+                elif index.column() == 1:
                     return "RepresentationItems"
-                elif index.column() <= len(
-                    self.controller.get_representation_columns()
-                ):
+                else:
                     repr_cols = self.controller.get_representation_columns()
-                    col_index = index.column() - 1
-                    if col_index < len(repr_cols):
+                    col_index = index.column() - 2
+                    if 0 <= col_index < len(repr_cols):
                         return repr_cols[col_index]
             elif role == Qt.FontRole:
                 from qtpy.QtGui import QFont
@@ -427,10 +460,10 @@ class NestedTableProxyModel(QAbstractTableModel):
                 font.setItalic(True)
                 return font
             elif role == Qt.UserRole + 1:  # Required column check
-                if index.column() > 0:
+                if index.column() > 1:
                     repr_cols = self.controller.get_representation_columns()
-                    col_index = index.column() - 1
-                    if col_index < len(repr_cols):
+                    col_index = index.column() - 2
+                    if 0 <= col_index < len(repr_cols):
                         return self.controller.is_required_column(
                             repr_cols[col_index]
                         )
@@ -439,8 +472,29 @@ class NestedTableProxyModel(QAbstractTableModel):
         elif model_type == "representation":
             if model_index in self.representation_models:
                 repr_model = self.representation_models[model_index]
-                # Skip the first column (expansion indicator) for representation data
-                repr_col = index.column() - 1
+                # Handle enabled checkbox for representations
+                if index.column() == 0:
+                    if role == Qt.DisplayRole:
+                        enabled = self.controller.get_representation_enabled(
+                            model_index, source_row
+                        )
+                        return "✓" if enabled else "✗"
+                    elif role == Qt.UserRole:
+                        return self.controller.get_representation_enabled(
+                            model_index, source_row
+                        )
+                    elif role == Qt.FontRole:
+                        from qtpy.QtGui import QFont
+
+                        font = QFont()
+                        font.setPointSize(14)
+                        return font
+                    elif role == Qt.TextAlignmentRole:
+                        return Qt.AlignCenter
+                    return None
+
+                # Skip the enabled and expansion columns for representation data
+                repr_col = index.column() - 2
                 if repr_col >= 0 and repr_col < repr_model.columnCount():
                     source_index = repr_model.createIndex(source_row, repr_col)
                     return repr_model.data(source_index, role)
@@ -465,9 +519,19 @@ class NestedTableProxyModel(QAbstractTableModel):
 
         elif model_type == "representation":
             if model_index in self.representation_models:
+                # Handle enabled checkbox for representations
+                if index.column() == 0:
+                    success = self.controller.set_representation_enabled(
+                        model_index, source_row, bool(value)
+                    )
+                    if success:
+                        self.dataChanged.emit(index, index, [role])
+                        self.controller.save_data()
+                    return success
+
                 repr_model = self.representation_models[model_index]
-                # Skip the first column (expansion indicator) for representation data
-                repr_col = index.column() - 1
+                # Skip the enabled and expansion columns for representation data
+                repr_col = index.column() - 2
                 if repr_col >= 0 and repr_col < repr_model.columnCount():
                     source_index = repr_model.createIndex(source_row, repr_col)
                     return repr_model.setData(source_index, value, role)
@@ -492,9 +556,17 @@ class NestedTableProxyModel(QAbstractTableModel):
 
         elif model_type == "representation":
             if model_index in self.representation_models:
+                # Handle enabled checkbox for representations
+                if index.column() == 0:
+                    return (
+                        Qt.ItemIsEnabled
+                        | Qt.ItemIsSelectable
+                        | Qt.ItemIsEditable
+                    )
+
                 repr_model = self.representation_models[model_index]
-                # Skip the first column (expansion indicator) for representation data
-                repr_col = index.column() - 1
+                # Skip the enabled and expansion columns for representation data
+                repr_col = index.column() - 2
                 if repr_col >= 0 and repr_col < repr_model.columnCount():
                     source_index = repr_model.createIndex(source_row, repr_col)
                     return repr_model.flags(source_index)
@@ -503,17 +575,48 @@ class NestedTableProxyModel(QAbstractTableModel):
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
-            # Try to get header from product model first
-            product_header = self.product_model.headerData(
-                section, orientation, role
-            )
-            if product_header and section < self.product_model.columnCount():
-                return product_header
+            # Column 0: Enabled checkbox
+            if section == 0:
+                return "Enabled"
 
-            # If not available, try representation columns
+            # Column 1: Expansion indicator (empty header)
+            if section == 1:
+                return ""
+
+            # Column 2+: Data columns
+            # First try product columns
+            if section < self.product_model.columnCount():
+                product_header = self.product_model.headerData(
+                    section, orientation, role
+                )
+                if product_header:
+                    return product_header
+
+            # Then try representation columns (offset by 2 for enabled + expansion)
             repr_cols = self.controller.get_representation_columns()
-            if section < len(repr_cols):
-                return repr_cols[section]
+            repr_section = section - 2
+            if 0 <= repr_section < len(repr_cols):
+                return repr_cols[repr_section]
+
+        elif role == Qt.UserRole + 1:  # Custom role for required status
+            if orientation == Qt.Horizontal:
+                # Column 0 and 1 are not required columns
+                if section <= 1:
+                    return False
+
+                # Check product columns first
+                if section < self.product_model.columnCount():
+                    return self.product_model.headerData(
+                        section, orientation, role
+                    )
+
+                # Check representation columns
+                repr_cols = self.controller.get_representation_columns()
+                repr_section = section - 2
+                if 0 <= repr_section < len(repr_cols):
+                    return self.controller.is_required_column(
+                        repr_cols[repr_section]
+                    )
 
         return None
 

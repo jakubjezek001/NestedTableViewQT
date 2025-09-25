@@ -1,4 +1,9 @@
-from qtpy.QtWidgets import QStyledItemDelegate, QStyleOptionViewItem, QStyle
+from qtpy.QtWidgets import (
+    QStyledItemDelegate,
+    QStyleOptionViewItem,
+    QStyle,
+    QStyleOptionButton,
+)
 from qtpy.QtCore import Qt, QRect
 from qtpy.QtGui import QPalette, QFont, QPen, QBrush, QColor
 from typing import Optional
@@ -10,6 +15,32 @@ class NestedTableDelegate(QStyledItemDelegate):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
+    def _brighten_color(self, color, factor=0.2):
+        """Brighten a color by the specified factor (0.2 = 20% brighter)."""
+        if isinstance(color, QColor):
+            h, s, v, a = color.getHsv()
+            # Increase value (brightness) by factor, capping at 255
+            v = min(255, int(v * (1 + factor)))
+            brightened = QColor()
+            brightened.setHsv(h, s, v, a)
+            return brightened
+        return color
+
+    def _is_representation_row(self, index):
+        """Check if this index represents a representation item row."""
+        if not index.isValid():
+            return False
+
+        # Get the model and check if it has row_mapping
+        model = index.model()
+        if not hasattr(model, "row_mapping") or index.row() >= len(
+            model.row_mapping
+        ):
+            return False
+
+        model_type, _, _ = model.row_mapping[index.row()]
+        return model_type == "representation"
 
     def paint(self, painter, option, index):
         """Custom paint method to handle different cell states."""
@@ -27,8 +58,31 @@ class NestedTableDelegate(QStyledItemDelegate):
         # Create a copy of the option to modify
         opt = QStyleOptionViewItem(option)
 
-        # Handle expansion indicator column (column 0 for product items)
-        if index.column() == 0 and index.data(Qt.DisplayRole) in ["▶", "▼"]:
+        # Check if this is a representation row for brightness enhancement
+        is_repr_row = self._is_representation_row(index)
+        if is_repr_row:
+            # Brighten background colors for representation rows
+            bg_color = opt.palette.color(QPalette.Base)
+            if opt.state & QStyle.State_Selected:
+                bg_color = opt.palette.color(QPalette.Highlight)
+            elif opt.features & QStyleOptionViewItem.Alternate:
+                bg_color = opt.palette.color(QPalette.AlternateBase)
+
+            brightened_bg = self._brighten_color(bg_color)
+            opt.palette.setColor(QPalette.Base, brightened_bg)
+            opt.palette.setColor(QPalette.AlternateBase, brightened_bg)
+            if opt.state & QStyle.State_Selected:
+                opt.palette.setColor(
+                    QPalette.Highlight, self._brighten_color(bg_color)
+                )
+
+        # Handle enabled checkbox column (column 0)
+        if index.column() == 0 and index.data(Qt.DisplayRole) in ["✓", "✗"]:
+            self._paint_checkbox(painter, opt, index, is_repr_row)
+            return
+
+        # Handle expansion indicator column (column 1 for product items)
+        if index.column() == 1 and index.data(Qt.DisplayRole) in ["▶", "▼"]:
             self._paint_expansion_indicator(painter, opt, index)
             return
 
@@ -39,16 +93,75 @@ class NestedTableDelegate(QStyledItemDelegate):
 
         # Handle disabled cells (representation items without data for this column)
         if has_data is False:  # Explicitly False means no data available
-            self._paint_disabled_cell(painter, opt, index)
+            self._paint_disabled_cell(painter, opt, index, is_repr_row)
             return
 
         # Handle required columns
         if is_required:
-            self._paint_required_cell(painter, opt, index)
+            self._paint_required_cell(painter, opt, index, is_repr_row)
             return
 
         # Default painting
-        super().paint(painter, option, index)
+        super().paint(painter, opt, index)
+
+    def _paint_checkbox(self, painter, option, index, is_repr_row=False):
+        """Paint the enabled checkbox using Qt's native checkbox style."""
+        # Get the enabled state
+        enabled = index.data(Qt.UserRole) or False
+
+        # Apply brightness enhancement for representation rows
+        if is_repr_row:
+            # Brighten the background
+            bg_color = option.palette.color(QPalette.Base)
+            if option.state & QStyle.State_Selected:
+                bg_color = option.palette.color(QPalette.Highlight)
+            elif option.features & QStyleOptionViewItem.Alternate:
+                bg_color = option.palette.color(QPalette.AlternateBase)
+
+            brightened_bg = self._brighten_color(bg_color)
+            painter.fillRect(option.rect, brightened_bg)
+
+        # Create checkbox style option
+        checkbox_option = QStyleOptionButton()
+        checkbox_option.rect = option.rect
+        checkbox_option.state = QStyle.State_Enabled
+
+        # Set checked state
+        if enabled:
+            checkbox_option.state |= QStyle.State_On
+        else:
+            checkbox_option.state |= QStyle.State_Off
+
+        # Set hover state
+        if option.state & QStyle.State_MouseOver:
+            checkbox_option.state |= QStyle.State_MouseOver
+
+        # Set selected state
+        if option.state & QStyle.State_Selected:
+            checkbox_option.state |= QStyle.State_Selected
+
+        # Calculate centered checkbox rectangle
+        checkbox_size = 18
+        checkbox_rect = QRect(
+            option.rect.center().x() - checkbox_size // 2,
+            option.rect.center().y() - checkbox_size // 2,
+            checkbox_size,
+            checkbox_size,
+        )
+        checkbox_option.rect = checkbox_rect
+
+        # Draw the checkbox using the application style
+        style = (
+            option.widget.style() if option.widget else option.widget.style()
+        )
+        if not style:
+            from qtpy.QtWidgets import QApplication
+
+            style = QApplication.style()
+
+        style.drawControl(
+            QStyle.CE_CheckBox, checkbox_option, painter, option.widget
+        )
 
     def _paint_expansion_indicator(self, painter, option, index):
         """Paint the expansion indicator with hover effects."""
@@ -69,17 +182,23 @@ class NestedTableDelegate(QStyledItemDelegate):
 
         painter.restore()
 
-    def _paint_disabled_cell(self, painter, option, index):
+    def _paint_disabled_cell(self, painter, option, index, is_repr_row=False):
         """Paint disabled cells with grayed out appearance."""
         # Fill background with disabled color
-        painter.fillRect(option.rect, ThemeColors.disabled_background())
+        disabled_bg = ThemeColors.disabled_background()
+        if is_repr_row:
+            disabled_bg = self._brighten_color(disabled_bg)
+        painter.fillRect(option.rect, disabled_bg)
 
         # Draw border
-        painter.setPen(QPen(ThemeColors.disabled_text()))
+        disabled_text = ThemeColors.disabled_text()
+        if is_repr_row:
+            disabled_text = self._brighten_color(disabled_text)
+        painter.setPen(QPen(disabled_text))
         painter.drawRect(option.rect.adjusted(0, 0, -1, -1))
 
         # Draw diagonal lines to indicate disabled state
-        painter.setPen(QPen(ThemeColors.disabled_text(), 1, Qt.SolidLine))
+        painter.setPen(QPen(disabled_text, 1, Qt.SolidLine))
 
         # Draw diagonal pattern
         for i in range(0, option.rect.width() + option.rect.height(), 8):
@@ -98,16 +217,22 @@ class NestedTableDelegate(QStyledItemDelegate):
 
             painter.drawLine(start_x, start_y, end_x, end_y)
 
-    def _paint_required_cell(self, painter, option, index):
-        """Paint required cells with highlighted background."""
+    def _paint_required_cell(self, painter, option, index, is_repr_row=False):
+        """Paint required cells with yellow background."""
         # Create modified option for required cells
         opt = QStyleOptionViewItem(option)
 
-        # # Set background color for required fields
-        # painter.fillRect(opt.rect, ThemeColors.required_background())
+        # Set background color for required fields
+        required_bg = ThemeColors.required_background()
+        if is_repr_row:
+            required_bg = self._brighten_color(required_bg)
+        painter.fillRect(opt.rect, required_bg)
 
         # Draw a subtle border to indicate required status
-        painter.setPen(QPen(ThemeColors.required_border(), 1))
+        required_border = ThemeColors.required_border()
+        if is_repr_row:
+            required_border = self._brighten_color(required_border)
+        painter.setPen(QPen(required_border, 1))
         painter.drawRect(opt.rect.adjusted(0, 0, -1, -1))
 
         # Get display text
@@ -115,7 +240,10 @@ class NestedTableDelegate(QStyledItemDelegate):
 
         # Draw the text
         painter.save()
-        painter.setPen(opt.palette.text().color())
+        text_color = opt.palette.text().color()
+        if is_repr_row:
+            text_color = self._brighten_color(text_color)
+        painter.setPen(text_color)
         font = opt.font
 
         # Make required column headers bold
@@ -198,8 +326,15 @@ class NestedTableDelegate(QStyledItemDelegate):
         if not index.isValid():
             return None
 
+        # Don't create editors for checkboxes (they are handled by editorEvent)
+        if index.column() == 0:
+            # Check if this is a checkbox cell by checking if it has enabled data
+            enabled_data = index.data(Qt.UserRole)
+            if isinstance(enabled_data, bool):
+                return None
+
         # Don't create editors for expansion indicators
-        if index.column() == 0 and index.data(Qt.DisplayRole) in ["▶", "▼"]:
+        if index.column() == 1 and index.data(Qt.DisplayRole) in ["▶", "▼"]:
             return None
 
         # Don't create editors for representation header rows
@@ -264,7 +399,9 @@ class NestedTableDelegate(QStyledItemDelegate):
 
         if value is not None:
             # Preserve original data type
-            if original_value is not None and not isinstance(value, type(original_value)):
+            if original_value is not None and not isinstance(
+                value, type(original_value)
+            ):
                 try:
                     if isinstance(original_value, bool):
                         # Handle boolean conversion
@@ -274,10 +411,14 @@ class NestedTableDelegate(QStyledItemDelegate):
                             value = bool(value)
                     elif isinstance(original_value, int):
                         # Convert to int, handling empty strings
-                        value = int(float(str(value))) if str(value).strip() else 0
+                        value = (
+                            int(float(str(value))) if str(value).strip() else 0
+                        )
                     elif isinstance(original_value, float):
                         # Convert to float, handling empty strings
-                        value = float(str(value)) if str(value).strip() else 0.0
+                        value = (
+                            float(str(value)) if str(value).strip() else 0.0
+                        )
                     elif isinstance(original_value, str):
                         # Keep as string
                         value = str(value)
@@ -310,8 +451,15 @@ class NestedTableDelegate(QStyledItemDelegate):
         if size.height() < min_height:
             size.setHeight(min_height)
 
+        # Special handling for enabled checkbox
+        if index.column() == 0:
+            # Check if this is a checkbox cell
+            enabled_data = index.data(Qt.UserRole)
+            if isinstance(enabled_data, bool):
+                size.setWidth(80)  # Fixed width for enabled column
+
         # Special handling for expansion indicator
-        if index.column() == 0 and index.data(Qt.DisplayRole) in ["▶", "▼"]:
+        elif index.column() == 1 and index.data(Qt.DisplayRole) in ["▶", "▼"]:
             size.setWidth(30)  # Fixed width for expansion column
 
         return size
@@ -321,9 +469,27 @@ class NestedTableDelegate(QStyledItemDelegate):
         if not index.isValid():
             return False
 
+        # Handle clicks on enabled checkboxes
+        if index.column() == 0:
+            # Check if this is a checkbox cell
+            enabled_data = index.data(Qt.UserRole)
+            if isinstance(enabled_data, bool):
+                from qtpy.QtCore import QEvent
+                from qtpy.QtGui import QMouseEvent
+
+                if (
+                    event.type() == QEvent.MouseButtonPress
+                    and isinstance(event, QMouseEvent)
+                    and event.button() == Qt.LeftButton
+                ):
+                    # Toggle enabled state
+                    current_value = enabled_data
+                    model.setData(index, not current_value, Qt.EditRole)
+                    return True
+
         # Handle clicks on expansion indicators
         if (
-            index.column() == 0
+            index.column() == 1
             and index.data(Qt.DisplayRole) in ["▶", "▼"]
             and hasattr(model, "toggle_expansion")
         ):

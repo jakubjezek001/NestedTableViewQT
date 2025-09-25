@@ -53,7 +53,7 @@ class StyleManager:
         if css_file_path is None:
             # Default to style.css in the project root
             project_root = Path(__file__).parent.parent
-            css_file_path = project_root / "dark_theme.css"
+            css_file_path = project_root / "style.css"
 
         try:
             with open(css_file_path, "r", encoding="utf-8") as f:

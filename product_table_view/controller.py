@@ -204,3 +204,40 @@ class DataController:
         """Get the number of representation items for a specific product."""
         repr_items = self.get_representation_items(product_index)
         return len(repr_items)
+
+    def get_product_enabled(self, product_index: int) -> bool:
+        """Get enabled state of a product item."""
+        product_item = self.get_product_item(product_index)
+        if product_item:
+            return product_item.get("data", {}).get("enabled", True)
+        return True
+
+    def set_product_enabled(self, product_index: int, enabled: bool) -> bool:
+        """Set enabled state of a product item."""
+        if 0 <= product_index < len(self.product_items):
+            if "data" not in self.product_items[product_index]:
+                self.product_items[product_index]["data"] = {}
+            self.product_items[product_index]["data"]["enabled"] = enabled
+            return True
+        return False
+
+    def get_representation_enabled(
+        self, product_index: int, repr_index: int
+    ) -> bool:
+        """Get enabled state of a representation item."""
+        repr_items = self.get_representation_items(product_index)
+        if repr_index < len(repr_items):
+            return repr_items[repr_index].get("data", {}).get("enabled", True)
+        return True
+
+    def set_representation_enabled(
+        self, product_index: int, repr_index: int, enabled: bool
+    ) -> bool:
+        """Set enabled state of a representation item."""
+        repr_items = self.get_representation_items(product_index)
+        if repr_index < len(repr_items):
+            if "data" not in repr_items[repr_index]:
+                repr_items[repr_index]["data"] = {}
+            repr_items[repr_index]["data"]["enabled"] = enabled
+            return True
+        return False

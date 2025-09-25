@@ -130,10 +130,21 @@ class NestedTableView(QTableView):
         if not self.model():
             return
 
-        # Set expansion column width (first column)
+        # Set enabled checkbox column width (column 0)
         if self.model().columnCount() > 0:
-            self.setColumnWidth(0, 30)
+            self.setColumnWidth(0, 80)
             self.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
+
+        # Set expansion indicator column width (column 1)
+        if self.model().columnCount() > 1:
+            self.setColumnWidth(1, 30)
+            self.horizontalHeader().setSectionResizeMode(1, QHeaderView.Fixed)
+
+        # Make all other columns resizable
+        for col in range(2, self.model().columnCount()):
+            self.horizontalHeader().setSectionResizeMode(
+                col, QHeaderView.Interactive
+            )
 
         # Auto-resize other columns initially
         self._resize_timer.start(100)  # Delayed resize
@@ -143,8 +154,8 @@ class NestedTableView(QTableView):
         if not self.model():
             return
 
-        # Skip expansion column (column 0)
-        for col in range(1, self.model().columnCount()):
+        # Skip enabled checkbox (column 0) and expansion indicator (column 1)
+        for col in range(2, self.model().columnCount()):
             self.resizeColumnToContents(col)
 
             # Set minimum and maximum widths for better UX

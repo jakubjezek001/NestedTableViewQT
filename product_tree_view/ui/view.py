@@ -91,6 +91,8 @@ class ProductTreeView(QTreeView):
         super().setModel(model)
 
         # Products are collapsed by default - no auto-expansion
+        if model:
+            self._initialize_product_indicators()
 
     def _expand_all_products(self):
         """Expand all product items initially."""
@@ -101,6 +103,19 @@ class ProductTreeView(QTreeView):
             product_index = self.model().index(row, 0)
             if product_index.isValid():
                 self.expand(product_index)
+
+    def _initialize_product_indicators(self):
+        """Initialize all product items with collapsed indicators."""
+        if not self.model():
+            return
+
+        for row in range(self.model().rowCount()):
+            product_index = self.model().index(row, 0)
+            if product_index.isValid():
+                item_type = self.model().get_item_type(product_index)
+                if item_type == "product":
+                    # Initialize with collapsed indicator
+                    self.model().update_expand_indicator(product_index, False)
 
     def _update_product_expand_indicators(self):
         """Update expand/collapse indicators for product items."""
@@ -128,13 +143,18 @@ class ProductTreeView(QTreeView):
                     item_rect = self.visualRect(index)
                     indent = self.indentation()
 
-                    # If click is in the indent area, let default behavior handle it
-                    if event.pos().x() < item_rect.x():
-                        super().mousePressEvent(event)
+                    # If click is in the indent area or on the indicator, toggle expansion
+                    # Make the first ~30 pixels of the cell clickable for expansion
+                    indicator_area_width = 30
+                    if event.pos().x() < item_rect.x() + indicator_area_width:
+                        if self.isExpanded(index):
+                            self.collapse(index)
+                        else:
+                            self.expand(index)
                         self._update_product_expand_indicators()
                         return
 
-                    # For clicks in the content area, toggle expand state
+                    # For other clicks in the content area, also toggle expand state for convenience
                     if self.isExpanded(index):
                         self.collapse(index)
                     else:
@@ -185,6 +205,7 @@ class ProductTreeView(QTreeView):
                 if event.key() == Qt.Key_Left:
                     if self.isExpanded(current_index):
                         self.collapse(current_index)
+                        # Indicator is updated automatically by overridden collapse method
                     else:
                         # Move to parent if already collapsed
                         super().keyPressEvent(event)
@@ -192,6 +213,7 @@ class ProductTreeView(QTreeView):
                 elif event.key() == Qt.Key_Right:
                     if not self.isExpanded(current_index):
                         self.expand(current_index)
+                        # Indicator is updated automatically by overridden expand method
                     else:
                         # Move to first child if already expanded
                         super().keyPressEvent(event)
@@ -214,6 +236,26 @@ class ProductTreeView(QTreeView):
             if product_index.isValid():
                 self.collapse(product_index)
         self._update_product_expand_indicators()
+
+    def expand(self, index):
+        """Override expand to update indicators."""
+        super().expand(index)
+
+        # Update indicator for product items
+        if self.model() and index.isValid():
+            item_type = self.model().get_item_type(index)
+            if item_type == "product":
+                self.model().update_expand_indicator(index, True)
+
+    def collapse(self, index):
+        """Override collapse to update indicators."""
+        super().collapse(index)
+
+        # Update indicator for product items
+        if self.model() and index.isValid():
+            item_type = self.model().get_item_type(index)
+            if item_type == "product":
+                self.model().update_expand_indicator(index, False)
 
     def get_selected_products(self):
         """Get list of selected product indices."""

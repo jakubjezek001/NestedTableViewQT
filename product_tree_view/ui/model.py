@@ -170,7 +170,10 @@ class ProductTreeModel(QAbstractItemModel):
         # Determine which column set to use based on item type
         if item.item_type == "product":
             columns = self.product_columns
-        elif item.item_type == "representation":
+        elif (
+            item.item_type == "representation"
+            or item.item_type == "representation_header"
+        ):
             columns = self.representation_columns
         else:
             return None
@@ -187,6 +190,13 @@ class ProductTreeModel(QAbstractItemModel):
 
             if not item.has_data(column_name):
                 return None
+
+            # Add expand/collapse indicator for products in first column
+            if item.item_type == "product" and column_idx == 0:
+                # Get expansion state indicator (default to collapsed)
+                indicator = getattr(item, "_expand_indicator", "▶")
+                original_text = str(item.data(column_name))
+                return f"{indicator} {original_text}"
 
             return str(item.data(column_name))
 
@@ -325,7 +335,25 @@ class ProductTreeModel(QAbstractItemModel):
         if item is None:
             return "root"
 
-        return getattr(item, "item_type", "root")
+        return getattr(item, "item_type", "unknown")
+
+    def update_expand_indicator(self, index: QModelIndex, expanded: bool):
+        """Update the expand/collapse indicator for a product item."""
+        if not index.isValid():
+            return
+
+        item = index.internalPointer()
+        if item is None or item.item_type != "product":
+            return
+
+        # Set the indicator based on expansion state
+        item._expand_indicator = "▼" if expanded else "▶"
+
+        # Emit data changed for the first column only
+        first_col_index = self.index(index.row(), 0, index.parent())
+        self.dataChanged.emit(
+            first_col_index, first_col_index, [Qt.DisplayRole]
+        )
 
     def get_columns_for_item(self, index: QModelIndex) -> List[str]:
         """Get appropriate column list for item at index."""

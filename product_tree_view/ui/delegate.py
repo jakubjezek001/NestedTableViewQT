@@ -72,6 +72,14 @@ class ProductTreeDelegate(QStyledItemDelegate):
 
     def _paint_checkbox(self, painter, option, index, has_data):
         """Paint checkbox for enabled column."""
+        # Get item info
+        item = index.internalPointer()
+        item_type = getattr(item, "item_type", None)
+        column_idx = index.column()
+
+        # Check if this is a product item in the first column (needs indicator)
+        show_indicator = item_type == "product" and column_idx == 0
+
         # Get style from various sources
         style = None
         if hasattr(option, "widget") and option.widget:
@@ -96,16 +104,28 @@ class ProductTreeDelegate(QStyledItemDelegate):
         checkbox_option.palette = option.palette
         checkbox_option.fontMetrics = option.fontMetrics
 
-        # Calculate checkbox size and center it
+        # Calculate checkbox size and position
         checkbox_size = style.pixelMetric(
             QStyle.PM_IndicatorWidth, checkbox_option
         )
-        checkbox_rect = QRect(
-            option.rect.x() + (option.rect.width() - checkbox_size) // 2,
-            option.rect.y() + (option.rect.height() - checkbox_size) // 2,
-            checkbox_size,
-            checkbox_size,
-        )
+
+        # If showing indicator, position checkbox to the right, otherwise center it
+        if show_indicator:
+            # Position checkbox towards the right side of the cell
+            checkbox_rect = QRect(
+                option.rect.x() + option.rect.width() - checkbox_size - 8,
+                option.rect.y() + (option.rect.height() - checkbox_size) // 2,
+                checkbox_size,
+                checkbox_size,
+            )
+        else:
+            # Center the checkbox
+            checkbox_rect = QRect(
+                option.rect.x() + (option.rect.width() - checkbox_size) // 2,
+                option.rect.y() + (option.rect.height() - checkbox_size) // 2,
+                checkbox_size,
+                checkbox_size,
+            )
         checkbox_option.rect = checkbox_rect
 
         # Set checkbox state
@@ -131,6 +151,31 @@ class ProductTreeDelegate(QStyledItemDelegate):
             QStyle.PE_IndicatorCheckBox, checkbox_option, painter
         )
 
+        # Draw expand indicator if this is a product item in first column
+        if show_indicator:
+            painter.save()
+
+            # Get indicator text from the model
+            indicator = index.data(Qt.DisplayRole)
+            if indicator:
+                # Set text color
+                painter.setPen(option.palette.windowText().color())
+
+                # Position text to the left of the checkbox
+                text_rect = QRect(
+                    option.rect.x() + 4,
+                    option.rect.y(),
+                    option.rect.width() - checkbox_size - 16,
+                    option.rect.height(),
+                )
+
+                # Draw the indicator
+                painter.drawText(
+                    text_rect, Qt.AlignVCenter | Qt.AlignLeft, indicator
+                )
+
+            painter.restore()
+
         # Restore painter state if we modified it
         if not has_data or not (index.flags() & Qt.ItemIsEnabled):
             painter.restore()
@@ -139,17 +184,35 @@ class ProductTreeDelegate(QStyledItemDelegate):
         """Paint a simple checkbox when style is not available."""
         painter.save()
 
+        # Get item info
+        item = index.internalPointer()
+        item_type = getattr(item, "item_type", None)
+        column_idx = index.column()
+
+        # Check if this is a product item in the first column (needs indicator)
+        show_indicator = item_type == "product" and column_idx == 0
+
         # Calculate checkbox rect
         checkbox_size = 16
-        checkbox_rect = QRect(
-            option.rect.x() + (option.rect.width() - checkbox_size) // 2,
-            option.rect.y() + (option.rect.height() - checkbox_size) // 2,
-            checkbox_size,
-            checkbox_size,
-        )
+
+        # Position checkbox based on whether we're showing indicator
+        if show_indicator:
+            checkbox_rect = QRect(
+                option.rect.x() + option.rect.width() - checkbox_size - 8,
+                option.rect.y() + (option.rect.height() - checkbox_size) // 2,
+                checkbox_size,
+                checkbox_size,
+            )
+        else:
+            checkbox_rect = QRect(
+                option.rect.x() + (option.rect.width() - checkbox_size) // 2,
+                option.rect.y() + (option.rect.height() - checkbox_size) // 2,
+                checkbox_size,
+                checkbox_size,
+            )
 
         # Draw checkbox border
-        painter.setPen(option.palette.color(option.palette.Text))
+        painter.setPen(option.palette.windowText().color())
         painter.drawRect(checkbox_rect)
 
         # Fill if checked
@@ -158,7 +221,25 @@ class ProductTreeDelegate(QStyledItemDelegate):
             if value == Qt.Checked:
                 inner_rect = checkbox_rect.adjusted(3, 3, -3, -3)
                 painter.fillRect(
-                    inner_rect, option.palette.color(option.palette.Text)
+                    inner_rect, option.palette.windowText().color()
+                )
+
+        # Draw expand indicator if this is a product item in first column
+        if show_indicator:
+            # Get indicator text from the model
+            indicator = index.data(Qt.DisplayRole)
+            if indicator:
+                # Position text to the left of the checkbox
+                text_rect = QRect(
+                    option.rect.x() + 4,
+                    option.rect.y(),
+                    option.rect.width() - checkbox_size - 16,
+                    option.rect.height(),
+                )
+
+                # Draw the indicator
+                painter.drawText(
+                    text_rect, Qt.AlignVCenter | Qt.AlignLeft, indicator
                 )
 
         # Apply disabled appearance if needed

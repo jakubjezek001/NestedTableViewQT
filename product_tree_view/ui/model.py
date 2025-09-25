@@ -195,18 +195,17 @@ class ProductTreeModel(QAbstractItemModel):
 
         # Handle different roles
         if role == Qt.DisplayRole:
+            # Add expand/collapse indicator for products in first column
+            if item.item_type == "product" and column_idx == 0:
+                # Get expansion state indicator (default to collapsed)
+                indicator = getattr(item, "_expand_indicator", "▶")
+                return indicator
+
             if self.controller.is_checkbox_column(column_name):
                 return None  # Checkboxes don't show text
 
             if not item.has_data(column_name):
                 return None
-
-            # Add expand/collapse indicator for products in first column
-            if item.item_type == "product" and column_idx == 0:
-                # Get expansion state indicator (default to collapsed)
-                indicator = getattr(item, "_expand_indicator", "▶")
-                original_text = str(item.data(column_name))
-                return f"{indicator} {original_text}"
 
             return str(item.data(column_name))
 

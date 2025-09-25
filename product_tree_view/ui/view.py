@@ -129,7 +129,33 @@ class ProductTreeView(QTreeView):
 
             # Handle product expand/collapse on any click in the row
             if item_type == "product":
-                # Check if this is a checkbox column - if so, don't handle expand/collapse
+                # Check if click was in the first column (special case: has both checkbox and indicator)
+                if index.column() == 0:
+                    item_rect = self.visualRect(index)
+
+                    # Calculate areas: left side for expand indicator, right side for checkbox
+                    # Checkbox is positioned at right side (width - checkbox_size - 8)
+                    checkbox_area_width = (
+                        32  # Approximate checkbox + padding area
+                    )
+                    checkbox_start_x = (
+                        item_rect.x() + item_rect.width() - checkbox_area_width
+                    )
+
+                    # If click is in the checkbox area (right side), let delegate handle it
+                    if event.pos().x() >= checkbox_start_x:
+                        super().mousePressEvent(event)
+                        return
+
+                    # If click is in the indicator area (left side), handle expand/collapse
+                    if self.isExpanded(index):
+                        self.collapse(index)
+                    else:
+                        self.expand(index)
+                    self._update_product_expand_indicators()
+                    return
+
+                # For other columns that are checkboxes, let delegate handle
                 column_idx = index.column()
                 product_columns = self.model().controller.get_product_columns()
 
@@ -140,29 +166,13 @@ class ProductTreeView(QTreeView):
                         super().mousePressEvent(event)
                         return
 
-                # Check if click was in the first column (where expand icon is)
-                if index.column() == 0:
-                    item_rect = self.visualRect(index)
-                    indent = self.indentation()
-
-                    # If click is in the indent area or on the indicator, toggle expansion
-                    # Make the first ~30 pixels of the cell clickable for expansion
-                    indicator_area_width = 30
-                    if event.pos().x() < item_rect.x() + indicator_area_width:
-                        if self.isExpanded(index):
-                            self.collapse(index)
-                        else:
-                            self.expand(index)
-                        self._update_product_expand_indicators()
-                        return
-
-                    # For other clicks in the content area, also toggle expand state for convenience
-                    if self.isExpanded(index):
-                        self.collapse(index)
-                    else:
-                        self.expand(index)
-                    self._update_product_expand_indicators()
-                    return
+                # For other columns, also allow expand/collapse for convenience
+                if self.isExpanded(index):
+                    self.collapse(index)
+                else:
+                    self.expand(index)
+                self._update_product_expand_indicators()
+                return
 
         super().mousePressEvent(event)
 

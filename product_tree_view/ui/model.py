@@ -99,6 +99,16 @@ class ProductTreeModel(QAbstractItemModel):
             )
             self.root_item.append_child(product_item)
 
+            # Add representation header as first child
+            if product_data["representations"]:
+                header_data = {col: col for col in self.representation_columns}
+                header_item = TreeItem(
+                    data=header_data,
+                    parent=product_item,
+                    item_type="representation_header",
+                )
+                product_item.append_child(header_item)
+
             # Add representation children
             for repr_data in product_data["representations"]:
                 repr_item = TreeItem(
@@ -208,7 +218,10 @@ class ProductTreeModel(QAbstractItemModel):
                 return Qt.Unchecked
 
         elif role == Qt.FontRole:
-            if item.item_type == "product":
+            if (
+                item.item_type == "product"
+                or item.item_type == "representation_header"
+            ):
                 font = QFont()
                 font.setBold(True)
                 return font
@@ -216,11 +229,21 @@ class ProductTreeModel(QAbstractItemModel):
         elif role == Qt.TextAlignmentRole:
             if self.controller.is_checkbox_column(column_name):
                 return Qt.AlignCenter
+            elif item.item_type == "representation_header":
+                return Qt.AlignCenter
 
         elif role == Qt.ToolTipRole:
-            if not item.has_data(column_name):
+            if item.item_type == "representation_header":
+                return f"Header for representation column: {column_name}"
+            elif not item.has_data(column_name):
                 return f"No data for '{column_name}' in this item"
             return str(item.data(column_name))
+
+        elif role == Qt.BackgroundRole:
+            if item.item_type == "representation_header":
+                from qtpy.QtGui import QColor
+
+                return QColor("#404040")  # Darker background for header
 
         return None
 
@@ -240,7 +263,10 @@ class ProductTreeModel(QAbstractItemModel):
         # Determine column name
         if item.item_type == "product":
             columns = self.product_columns
-        elif item.item_type == "representation":
+        elif (
+            item.item_type == "representation"
+            or item.item_type == "representation_header"
+        ):
             columns = self.representation_columns
         else:
             return False
@@ -249,6 +275,10 @@ class ProductTreeModel(QAbstractItemModel):
             return False
 
         column_name = columns[column_idx]
+
+        # Don't allow editing of header rows
+        if item.item_type == "representation_header":
+            return False
 
         if role == Qt.CheckStateRole:
             if self.controller.is_checkbox_column(column_name):
@@ -277,7 +307,10 @@ class ProductTreeModel(QAbstractItemModel):
         # Determine column name
         if item.item_type == "product":
             columns = self.product_columns
-        elif item.item_type == "representation":
+        elif (
+            item.item_type == "representation"
+            or item.item_type == "representation_header"
+        ):
             columns = self.representation_columns
         else:
             return Qt.NoItemFlags
@@ -288,6 +321,10 @@ class ProductTreeModel(QAbstractItemModel):
         column_name = columns[column_idx]
 
         flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
+        # Header rows are not editable but are selectable
+        if item.item_type == "representation_header":
+            return flags
 
         # Disable cell if item doesn't have data for this column
         if not item.has_data(column_name):

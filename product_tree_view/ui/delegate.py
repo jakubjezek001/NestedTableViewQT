@@ -37,6 +37,12 @@ class ProductTreeDelegate(QStyledItemDelegate):
 
         # Determine column name based on item type
         item_type = getattr(item, "item_type", None)
+
+        # Special painting for representation headers
+        if item_type == "representation_header":
+            self._paint_representation_header(painter, option, index)
+            return
+
         if item_type == "product":
             columns = self.controller.get_product_columns()
         elif item_type == "representation":
@@ -161,6 +167,43 @@ class ProductTreeDelegate(QStyledItemDelegate):
 
         painter.restore()
 
+    def _paint_representation_header(self, painter, option, index):
+        """Paint representation header row with special styling."""
+        painter.save()
+
+        # Draw header background
+        from qtpy.QtGui import QColor
+
+        header_color = QColor("#505050")
+
+        if option.state & QStyle.State_MouseOver:
+            header_color = QColor("#5a5a5a")
+        elif option.state & QStyle.State_Selected:
+            header_color = QColor("#606060")
+
+        painter.fillRect(option.rect, header_color)
+
+        # Draw border
+        border_color = QColor("#666666")
+        painter.setPen(border_color)
+        painter.drawLine(option.rect.topLeft(), option.rect.topRight())
+        painter.drawLine(option.rect.bottomLeft(), option.rect.bottomRight())
+
+        # Draw text
+        text = str(index.data(Qt.DisplayRole) or "")
+        painter.setPen(QColor("#ffffff"))
+
+        # Use bold font
+        font = painter.font()
+        font.setBold(True)
+        painter.setFont(font)
+
+        # Center the text
+        text_rect = option.rect.adjusted(4, 0, -4, 0)
+        painter.drawText(text_rect, Qt.AlignCenter | Qt.AlignVCenter, text)
+
+        painter.restore()
+
     def _paint_disabled_cell(self, painter, option, index):
         """Paint disabled cell for missing data."""
         painter.save()
@@ -204,7 +247,10 @@ class ProductTreeDelegate(QStyledItemDelegate):
             item_type = getattr(item, "item_type", None)
             if item_type == "product":
                 columns = self.controller.get_product_columns()
-            elif item_type == "representation":
+            elif (
+                item_type == "representation"
+                or item_type == "representation_header"
+            ):
                 columns = self.controller.get_representation_columns()
             else:
                 return None
@@ -216,6 +262,10 @@ class ProductTreeDelegate(QStyledItemDelegate):
 
             # For checkbox columns, return None (handled by paint method)
             if self.controller.is_checkbox_column(column_name):
+                return None
+
+            # Don't create editor for header rows
+            if item_type == "representation_header":
                 return None
 
             # Don't create editor for cells that shouldn't be edited
@@ -254,7 +304,10 @@ class ProductTreeDelegate(QStyledItemDelegate):
         item_type = getattr(item, "item_type", None)
         if item_type == "product":
             columns = self.controller.get_product_columns()
-        elif item_type == "representation":
+        elif (
+            item_type == "representation"
+            or item_type == "representation_header"
+        ):
             columns = self.controller.get_representation_columns()
         else:
             return False
@@ -263,6 +316,10 @@ class ProductTreeDelegate(QStyledItemDelegate):
             return False
 
         column_name = columns[column_idx]
+
+        # Don't handle events for header rows
+        if item_type == "representation_header":
+            return False
 
         # Handle checkbox clicks
         if (

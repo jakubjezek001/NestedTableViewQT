@@ -34,18 +34,33 @@ class ProductTreeView(QTreeView):
         header.setMinimumSectionSize(80)
         header.setVisible(True)  # Ensure header is visible
 
-        # Set minimum row height for better checkbox visibility
+        # Set minimum row height for better checkbox visibility and dark theme
         self.setStyleSheet("""
+            QTreeView {
+                background-color: #323232;
+                color: #ffffff;
+                border: 1px solid #555555;
+                alternate-background-color: #2e2e2e;
+                selection-background-color: #0078d4;
+                selection-color: #ffffff;
+                outline: none;
+            }
             QTreeView::item {
                 height: 24px;
                 padding: 2px;
+                color: #ffffff;
             }
             QTreeView::item:selected {
                 background-color: #0078d4;
-                color: white;
+                color: #ffffff;
             }
             QTreeView::item:hover {
-                background-color: rgba(0, 120, 212, 0.1);
+                background-color: #3a3a3a;
+                color: #ffffff;
+            }
+            QTreeView::item:selected:hover {
+                background-color: #106ebe;
+                color: #ffffff;
             }
             QTreeView::branch:has-children:!has-siblings:closed,
             QTreeView::branch:closed:has-children:has-siblings {
@@ -58,16 +73,16 @@ class ProductTreeView(QTreeView):
                 image: none;
             }
             QHeaderView::section {
-                background-color: #f0f0f0;  /* 10% brighter than typical background */
-                border: 1px solid #cccccc;
-                border-bottom: 2px solid #999999;
+                background-color: #404040;
+                border: 1px solid #555555;
+                border-bottom: 2px solid #0078d4;
                 padding: 6px 4px;
                 font-weight: bold;
                 font-size: 9pt;
-                color: #333333;
+                color: #ffffff;
             }
             QHeaderView::section:hover {
-                background-color: #f5f5f5;  /* Slightly brighter on hover */
+                background-color: #4a4a4a;
             }
         """)
 
@@ -126,8 +141,17 @@ class ProductTreeView(QTreeView):
         index = self.indexAt(event.pos())
 
         if index.isValid():
-            # Start editing on double-click for any valid cell
-            self.edit(index)
+            try:
+                # Check if the cell is actually editable
+                if index.flags() & Qt.ItemIsEditable:
+                    # Start editing on double-click for any valid cell
+                    self.edit(index)
+                else:
+                    # If not editable, fall back to default behavior
+                    super().mouseDoubleClickEvent(event)
+            except Exception as e:
+                print(f"Error starting edit mode: {e}")
+                super().mouseDoubleClickEvent(event)
         else:
             super().mouseDoubleClickEvent(event)
 
@@ -137,7 +161,13 @@ class ProductTreeView(QTreeView):
 
         # Handle F2 key for editing
         if event.key() == Qt.Key_F2 and current_index.isValid():
-            self.edit(current_index)
+            try:
+                if current_index.flags() & Qt.ItemIsEditable:
+                    self.edit(current_index)
+                else:
+                    print("Cell is not editable")
+            except Exception as e:
+                print(f"Error starting edit mode with F2: {e}")
             return
 
         if current_index.isValid() and self.model():

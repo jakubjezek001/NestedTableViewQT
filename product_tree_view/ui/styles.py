@@ -39,45 +39,165 @@ class StyleManager:
             disabled_color = palette.color(QPalette.Disabled, QPalette.Text)
 
             self._color_palette = {
-                "bg": base_color.name(),
-                "font": text_color.name(),
-                "font-disabled": disabled_color.name(),
+                "bg": "#2b2b2b",  # Dark background
+                "font": "#ffffff",  # Light text
+                "font-disabled": "#808080",  # Gray disabled text
                 "accent": "#0078d4",  # Blue accent
                 "accent-hover": "#106ebe",  # Darker blue
-                "border": "#cccccc",  # Light gray border
+                "border": "#555555",  # Dark gray border
                 "border-focus": "#0078d4",  # Blue focus border
                 "success": "#107c10",  # Green
                 "warning": "#ff8c00",  # Orange
                 "error": "#d13438",  # Red
+                # Input/Form colors
+                "bg-inputs": "#3c3c3c",
+                "border-hover": "#0078d4",
+                # Button colors
+                "bg-buttons": "#404040",
+                "bg-buttons-hover": "#4a4a4a",
+                "font-hover": "#ffffff",
+                # View colors
+                "bg-view": "#323232",
+                "bg-view-alternate": "#2e2e2e",
+                "bg-view-hover": "#3a3a3a",
+                "bg-view-selection": "#0078d4",
+                "font-view-selection": "#ffffff",
+                "bg-view-selection-hover": "#106ebe",
+                "bg-view-header": "#404040",
+                # Tab widget colors
+                "tab-widget:bg": "#404040",
+                "tab-widget:color": "#ffffff",
+                "tab-widget:bg-selected": "#323232",
+                "tab-widget:color-selected": "#ffffff",
+                "tab-widget:bg-hover": "#4a4a4a",
+                "tab-widget:color-hover": "#ffffff",
+                # Menu and separator colors
+                "bg-menu-separator": "#555555",
+                "bg-scroll-handle": "#606060",
+                # Special button colors
+                "delete-btn-bg": "#d13438",
+                "restart-btn-bg": "#ff8c00",
+                # Publisher colors
+                "publisher:success": "#107c10",
+                "publisher:error": "#d13438",
+                "publisher:crash": "#8b0000",
+                "publisher:warning": "#ff8c00",
+                "publisher:progress": "#0078d4",
+                "publisher:tab-bg": "#f3f3f3",
+                # Overlay message colors
+                "overlay-messages:bg-success": "#1e4620",
+                "overlay-messages:bg-success-hover": "#2d5a2f",
+                "overlay-messages:bg-error": "#4a1e1e",
+                "overlay-messages:bg-error-hover": "#5a2d2d",
+                "overlay-messages:bg-info": "#1e3a4a",
+                "overlay-messages:bg-info-hover": "#2d4a5a",
                 # Settings-specific colors
-                "settings:label-fg": text_color.name(),
+                "settings:label-fg": "#ffffff",
                 "settings:label-fg-hover": "#0078d4",
+                "settings:focus-border": "#0078d4",
+                "settings:modified-light": "#4a3d1a",
+                "settings:modified-mid": "#5a4720",
+                "settings:modified-dark": "#ff8c00",
+                "settings:studio-light": "#1a2d3d",
+                "settings:studio-dark": "#0277bd",
+                "settings:studio-label-hover": "#01579b",
+                "settings:invalid-light": "#4a1e1e",
+                "settings:invalid-dark": "#d13438",
+                "settings:project-light": "#1e4a1e",
+                "settings:project-mid": "#2d5a2d",
+                "settings:project-dark": "#4caf50",
+                "settings:source-version": "#28a745",
+                "settings:source-version-outdated": "#ffc107",
+                "settings:breadcrumbs-btn-bg": "#404040",
+                "settings:breadcrumbs-btn-bg-hover": "#4a4a4a",
+                # Font overrides
+                "font-overridden": "#ff6b35",
                 # Additional common colors
                 "primary": "#0078d4",
                 "secondary": "#6c757d",
-                "hover": "#f8f9fa",
+                "hover": "#3a3a3a",
                 "selected": "#0078d4",
             }
         else:
             # Fallback colors if no app instance
             self._color_palette = {
-                "bg": "#ffffff",
-                "font": "#000000",
+                "bg": "#2b2b2b",
+                "font": "#ffffff",
                 "font-disabled": "#808080",
                 "accent": "#0078d4",
                 "accent-hover": "#106ebe",
-                "border": "#cccccc",
+                "border": "#555555",
                 "border-focus": "#0078d4",
                 "success": "#107c10",
                 "warning": "#ff8c00",
                 "error": "#d13438",
+                # Input/Form colors
+                "bg-inputs": "#3c3c3c",
+                "border-hover": "#0078d4",
+                # Button colors
+                "bg-buttons": "#404040",
+                "bg-buttons-hover": "#4a4a4a",
+                "font-hover": "#ffffff",
+                # View colors
+                "bg-view": "#323232",
+                "bg-view-alternate": "#2e2e2e",
+                "bg-view-hover": "#3a3a3a",
+                "bg-view-selection": "#0078d4",
+                "font-view-selection": "#ffffff",
+                "bg-view-selection-hover": "#106ebe",
+                "bg-view-header": "#404040",
+                # Tab widget colors
+                "tab-widget:bg": "#404040",
+                "tab-widget:color": "#ffffff",
+                "tab-widget:bg-selected": "#323232",
+                "tab-widget:color-selected": "#ffffff",
+                "tab-widget:bg-hover": "#4a4a4a",
+                "tab-widget:color-hover": "#ffffff",
+                # Menu and separator colors
+                "bg-menu-separator": "#555555",
+                "bg-scroll-handle": "#606060",
+                # Special button colors
+                "delete-btn-bg": "#d13438",
+                "restart-btn-bg": "#ff8c00",
+                # Publisher colors
+                "publisher:success": "#107c10",
+                "publisher:error": "#d13438",
+                "publisher:crash": "#8b0000",
+                "publisher:warning": "#ff8c00",
+                "publisher:progress": "#0078d4",
+                "publisher:tab-bg": "#f3f3f3",
+                # Overlay message colors
+                "overlay-messages:bg-success": "#1e4620",
+                "overlay-messages:bg-success-hover": "#2d5a2f",
+                "overlay-messages:bg-error": "#4a1e1e",
+                "overlay-messages:bg-error-hover": "#5a2d2d",
+                "overlay-messages:bg-info": "#1e3a4a",
+                "overlay-messages:bg-info-hover": "#2d4a5a",
                 # Settings-specific colors
-                "settings:label-fg": "#000000",
+                "settings:label-fg": "#ffffff",
                 "settings:label-fg-hover": "#0078d4",
+                "settings:focus-border": "#0078d4",
+                "settings:modified-light": "#4a3d1a",
+                "settings:modified-mid": "#5a4720",
+                "settings:modified-dark": "#ff8c00",
+                "settings:studio-light": "#1a2d3d",
+                "settings:studio-dark": "#0277bd",
+                "settings:studio-label-hover": "#01579b",
+                "settings:invalid-light": "#4a1e1e",
+                "settings:invalid-dark": "#d13438",
+                "settings:project-light": "#1e4a1e",
+                "settings:project-mid": "#2d5a2d",
+                "settings:project-dark": "#4caf50",
+                "settings:source-version": "#28a745",
+                "settings:source-version-outdated": "#ffc107",
+                "settings:breadcrumbs-btn-bg": "#404040",
+                "settings:breadcrumbs-btn-bg-hover": "#4a4a4a",
+                # Font overrides
+                "font-overridden": "#ff6b35",
                 # Additional common colors
                 "primary": "#0078d4",
                 "secondary": "#6c757d",
-                "hover": "#f8f9fa",
+                "hover": "#3a3a3a",
                 "selected": "#0078d4",
             }
 
@@ -109,7 +229,13 @@ class StyleManager:
 
         # Handle any remaining undefined color variables by providing fallbacks
         def replace_undefined_colors(match):
-            color_key = match.group(1)
+            color_key = match.group(1).strip()
+
+            # Handle malformed color variables that contain actual color values
+            if color_key.startswith("#") or color_key.startswith("rgb"):
+                # This is already a color value, just return it without the wrapper
+                return color_key.rstrip(";")
+
             # Provide fallback colors for common undefined variables
             fallback_colors = {
                 "text": "#000000",
@@ -176,28 +302,35 @@ class StyleManager:
         return f"""
         QTreeView {{
             border: 1px solid {self.get_color("border")};
-            background-color: {self.get_color("bg")};
-            alternate-background-color:
-                {self._lighten_color(self.get_color("bg"), 0.05)};
-            selection-background-color: {self.get_color("accent")};
-            selection-color: white;
+            background-color: {self.get_color("bg-view")};
+            alternate-background-color: {self.get_color("bg-view-alternate")};
+            selection-background-color: {self.get_color("bg-view-selection")};
+            selection-color: {self.get_color("font-view-selection")};
+            color: {self.get_color("font")};
             outline: none;
+            gridline-color: {self.get_color("border")};
         }}
 
         QTreeView::item {{
             height: 24px;
             padding: 2px;
             border: none;
+            color: {self.get_color("font")};
         }}
 
         QTreeView::item:selected {{
-            background-color: {self.get_color("accent")};
-            color: white;
+            background-color: {self.get_color("bg-view-selection")};
+            color: {self.get_color("font-view-selection")};
         }}
 
         QTreeView::item:hover {{
-            background-color:
-                {self._lighten_color(self.get_color("accent"), 0.8)};
+            background-color: {self.get_color("bg-view-hover")};
+            color: {self.get_color("font")};
+        }}
+
+        QTreeView::item:selected:hover {{
+            background-color: {self.get_color("bg-view-selection-hover")};
+            color: {self.get_color("font-view-selection")};
         }}
 
         QTreeView::branch {{
@@ -208,20 +341,49 @@ class StyleManager:
         QTreeView::branch:closed:has-children:has-siblings {{
             border-image: none;
             background: transparent;
+            image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTYgNEwxMCA4TDYgMTJWNFoiIGZpbGw9IiNGRkZGRkYiLz4KPHN2Zz4K);
         }}
 
         QTreeView::branch:open:has-children:!has-siblings,
         QTreeView::branch:open:has-children:has-siblings {{
             border-image: none;
             background: transparent;
+            image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgNkw4IDEwTDEyIDZINFoiIGZpbGw9IiNGRkZGRkYiLz4KPHN2Zz4K);
         }}
 
         QHeaderView::section {{
-            background-color:
-                {self._lighten_color(self.get_color("bg"), 0.1)};
+            background-color: {self.get_color("bg-view-header")};
             border: 1px solid {self.get_color("border")};
-            padding: 4px;
+            border-bottom: 2px solid {self.get_color("accent")};
+            padding: 6px 4px;
             font-weight: bold;
+            font-size: 9pt;
+            color: {self.get_color("font")};
+        }}
+
+        QHeaderView::section:hover {{
+            background-color: {self.get_color("bg-buttons-hover")};
+        }}
+
+        QScrollBar:vertical {{
+            background-color: {self.get_color("bg")};
+            width: 12px;
+            border: none;
+        }}
+
+        QScrollBar::handle:vertical {{
+            background-color: {self.get_color("bg-scroll-handle")};
+            border-radius: 6px;
+            min-height: 20px;
+        }}
+
+        QScrollBar::handle:vertical:hover {{
+            background-color: {self.get_color("accent")};
+        }}
+
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+            border: none;
+            background: none;
         }}
         """
 

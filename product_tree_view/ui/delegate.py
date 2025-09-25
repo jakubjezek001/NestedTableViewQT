@@ -192,37 +192,51 @@ class ProductTreeDelegate(QStyledItemDelegate):
         if not index.isValid():
             return None
 
-        # Get item and column info
-        item = index.internalPointer()
-        if item is None:
+        try:
+            # Get item and column info
+            item = index.internalPointer()
+            if item is None:
+                return None
+
+            column_idx = index.column()
+
+            # Determine column name
+            item_type = getattr(item, "item_type", None)
+            if item_type == "product":
+                columns = self.controller.get_product_columns()
+            elif item_type == "representation":
+                columns = self.controller.get_representation_columns()
+            else:
+                return None
+
+            if column_idx >= len(columns):
+                return None
+
+            column_name = columns[column_idx]
+
+            # For checkbox columns, return None (handled by paint method)
+            if self.controller.is_checkbox_column(column_name):
+                return None
+
+            # Don't create editor for cells that shouldn't be edited
+            # (e.g., representation cells that don't have data)
+            if item_type == "representation" and not item.has_data(
+                column_name
+            ):
+                return None
+
+            # Create text editor for editable columns
+            from qtpy.QtWidgets import QLineEdit
+
+            editor = QLineEdit(parent)
+            editor.setFrame(False)
+            editor.selectAll()  # Select all text when editing starts
+            return editor
+
+        except Exception as e:
+            # Log error and return None to prevent crashes
+            print(f"Error creating editor: {e}")
             return None
-
-        column_idx = index.column()
-
-        # Determine column name
-        item_type = getattr(item, "item_type", None)
-        if item_type == "product":
-            columns = self.controller.get_product_columns()
-        elif item_type == "representation":
-            columns = self.controller.get_representation_columns()
-        else:
-            return None
-
-        if column_idx >= len(columns):
-            return None
-
-        column_name = columns[column_idx]
-
-        # For checkbox columns, return None (handled by paint method)
-        if self.controller.is_checkbox_column(column_name):
-            return None
-
-        # Create text editor for editable columns
-        from qtpy.QtWidgets import QLineEdit
-
-        editor = QLineEdit(parent)
-        editor.setFrame(False)
-        return editor
 
     def editorEvent(self, event, model, option, index):
         """Handle editor events, particularly for checkboxes."""
@@ -272,27 +286,43 @@ class ProductTreeDelegate(QStyledItemDelegate):
 
     def setEditorData(self, editor, index):
         """Set the data to be displayed and edited by the editor."""
-        if not index.isValid():
+        if not index.isValid() or editor is None:
             return
 
-        # Get the current data
-        data = index.data(Qt.DisplayRole)
-        if data is not None:
+        try:
+            # Get the current data
+            data = index.data(Qt.DisplayRole)
+
             from qtpy.QtWidgets import QLineEdit
 
             if isinstance(editor, QLineEdit):
-                editor.setText(str(data))
+                # Convert data to string, handle None values
+                text = str(data) if data is not None else ""
+                editor.setText(text)
+                editor.selectAll()  # Select all text for easy replacement
+        except Exception as e:
+            print(f"Error setting editor data: {e}")
 
     def setModelData(self, editor, model, index):
         """Get data from the editor widget and store it in the specified model."""
-        if not index.isValid():
+        if not index.isValid() or editor is None or model is None:
             return
 
-        from qtpy.QtWidgets import QLineEdit
+        try:
+            from qtpy.QtWidgets import QLineEdit
 
-        if isinstance(editor, QLineEdit):
-            text = editor.text()
-            model.setData(index, text, Qt.EditRole)
+            if isinstance(editor, QLineEdit):
+                text = editor.text()
+                # Only update if the text has actually changed
+                current_data = index.data(Qt.DisplayRole)
+                if str(current_data) != text:
+                    success = model.setData(index, text, Qt.EditRole)
+                    if not success:
+                        print(
+                            f"Failed to set data for index {index.row()}, {index.column()}"
+                        )
+        except Exception as e:
+            print(f"Error setting model data: {e}")
 
     def updateEditorGeometry(self, editor, option, index):
         """Update the editor for the item specified by index according to the style option."""

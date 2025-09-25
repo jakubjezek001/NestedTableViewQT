@@ -90,9 +90,7 @@ class ProductTreeView(QTreeView):
         """Set model and configure initial state."""
         super().setModel(model)
 
-        if model:
-            # Expand all product items by default
-            self._expand_all_products()
+        # Products are collapsed by default - no auto-expansion
 
     def _expand_all_products(self):
         """Expand all product items initially."""
@@ -103,6 +101,14 @@ class ProductTreeView(QTreeView):
             product_index = self.model().index(row, 0)
             if product_index.isValid():
                 self.expand(product_index)
+
+    def _update_product_expand_indicators(self):
+        """Update expand/collapse indicators for product items."""
+        if not self.model():
+            return
+
+        # Force a repaint to update the indicators
+        self.viewport().update()
 
     def mousePressEvent(self, event):
         """Handle mouse press events for expand/collapse."""
@@ -125,6 +131,7 @@ class ProductTreeView(QTreeView):
                     # If click is in the indent area, let default behavior handle it
                     if event.pos().x() < item_rect.x():
                         super().mousePressEvent(event)
+                        self._update_product_expand_indicators()
                         return
 
                     # For clicks in the content area, toggle expand state
@@ -132,6 +139,7 @@ class ProductTreeView(QTreeView):
                         self.collapse(index)
                     else:
                         self.expand(index)
+                    self._update_product_expand_indicators()
                     return
 
         super().mousePressEvent(event)
@@ -194,6 +202,7 @@ class ProductTreeView(QTreeView):
     def expand_all_products(self):
         """Public method to expand all product items."""
         self._expand_all_products()
+        self._update_product_expand_indicators()
 
     def collapse_all_products(self):
         """Collapse all product items."""
@@ -204,6 +213,7 @@ class ProductTreeView(QTreeView):
             product_index = self.model().index(row, 0)
             if product_index.isValid():
                 self.collapse(product_index)
+        self._update_product_expand_indicators()
 
     def get_selected_products(self):
         """Get list of selected product indices."""

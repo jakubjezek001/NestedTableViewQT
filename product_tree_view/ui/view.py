@@ -127,7 +127,7 @@ class ProductTreeView(QTreeView):
         ):
             item_type = self.model().get_item_type(index)
 
-            # Handle product expand/collapse on any click in the row
+            # Handle product expand/collapse only on specific indicator clicks
             if item_type == "product":
                 # Check if click was in the first column (special case: has both checkbox and indicator)
                 if index.column() == 0:
@@ -147,12 +147,20 @@ class ProductTreeView(QTreeView):
                         super().mousePressEvent(event)
                         return
 
-                    # If click is in the indicator area (left side), handle expand/collapse
-                    if self.isExpanded(index):
-                        self.collapse(index)
-                    else:
-                        self.expand(index)
-                    self._update_product_expand_indicators()
+                    # Only handle expand/collapse if click is in the very left indicator area
+                    indicator_area_width = (
+                        20  # Small area just for the indicator
+                    )
+                    if event.pos().x() < item_rect.x() + indicator_area_width:
+                        if self.isExpanded(index):
+                            self.collapse(index)
+                        else:
+                            self.expand(index)
+                        self._update_product_expand_indicators()
+                        return
+
+                    # For clicks between indicator and checkbox, just select the row
+                    super().mousePressEvent(event)
                     return
 
                 # For other columns that are checkboxes, let delegate handle
@@ -166,12 +174,8 @@ class ProductTreeView(QTreeView):
                         super().mousePressEvent(event)
                         return
 
-                # For other columns, also allow expand/collapse for convenience
-                if self.isExpanded(index):
-                    self.collapse(index)
-                else:
-                    self.expand(index)
-                self._update_product_expand_indicators()
+                # For all other columns, just select the row (no expand/collapse)
+                super().mousePressEvent(event)
                 return
 
         super().mousePressEvent(event)

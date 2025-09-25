@@ -15,8 +15,8 @@ class DataController:
         """Initialize controller with data file path."""
         self.data_file = data_file
         self._data = None
-        self._product_columns = set()
-        self._representation_columns = set()
+        self._product_columns = []
+        self._representation_columns = []
 
     def load_data(self) -> Dict[str, Any]:
         """Load data from JSON file."""
@@ -34,64 +34,28 @@ class DataController:
         if not self._data or "ProductItems" not in self._data:
             return
 
-        # Collect all unique columns from products
+        # Collect all unique columns from products in order of first appearance
         for product in self._data["ProductItems"]:
             if "data" in product:
-                self._product_columns.update(product["data"].keys())
+                for key in product["data"].keys():
+                    if key not in self._product_columns:
+                        self._product_columns.append(key)
 
-            # Collect all unique columns from representations
+            # Collect all unique columns from representations in order of first appearance
             if "RepresentationItems" in product:
                 for repr_item in product["RepresentationItems"]:
                     if "data" in repr_item:
-                        self._representation_columns.update(
-                            repr_item["data"].keys()
-                        )
+                        for key in repr_item["data"].keys():
+                            if key not in self._representation_columns:
+                                self._representation_columns.append(key)
 
     def get_product_columns(self) -> List[str]:
-        """Get all unique product columns in consistent order."""
-        if not self._product_columns:
-            return []
-
-        # Ensure 'Enabled' is first, required columns follow
-        columns = []
-        if "Enabled" in self._product_columns:
-            columns.append("Enabled")
-
-        required_cols = ["Folder Path", "Product Type"]
-        for col in required_cols:
-            if col in self._product_columns and col not in columns:
-                columns.append(col)
-
-        # Add remaining columns alphabetically
-        remaining = sorted(
-            [col for col in self._product_columns if col not in columns]
-        )
-        columns.extend(remaining)
-
-        return columns
+        """Get all unique product columns in order of first appearance."""
+        return self._product_columns.copy()
 
     def get_representation_columns(self) -> List[str]:
-        """Get all unique representation columns in consistent order."""
-        if not self._representation_columns:
-            return []
-
-        # Ensure 'Enabled' is first, required columns follow
-        columns = []
-        if "Enabled" in self._representation_columns:
-            columns.append("Enabled")
-
-        required_cols = ["File Path"]
-        for col in required_cols:
-            if col in self._representation_columns and col not in columns:
-                columns.append(col)
-
-        # Add remaining columns alphabetically
-        remaining = sorted(
-            [col for col in self._representation_columns if col not in columns]
-        )
-        columns.extend(remaining)
-
-        return columns
+        """Get all unique representation columns in order of first appearance."""
+        return self._representation_columns.copy()
 
     def get_products(self) -> List[Dict[str, Any]]:
         """Get list of product items with their data and children."""

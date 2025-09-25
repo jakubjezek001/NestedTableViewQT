@@ -62,16 +62,7 @@ class ProductTreeView(QTreeView):
                 background-color: #106ebe;
                 color: #ffffff;
             }
-            QTreeView::branch:has-children:!has-siblings:closed,
-            QTreeView::branch:closed:has-children:has-siblings {
-                border-image: none;
-                image: none;
-            }
-            QTreeView::branch:open:has-children:!has-siblings,
-            QTreeView::branch:open:has-children:has-siblings {
-                border-image: none;
-                image: none;
-            }
+
             QHeaderView::section {
                 background-color: #404040;
                 border: 1px solid #555555;
@@ -138,6 +129,17 @@ class ProductTreeView(QTreeView):
 
             # Handle product expand/collapse on any click in the row
             if item_type == "product":
+                # Check if this is a checkbox column - if so, don't handle expand/collapse
+                column_idx = index.column()
+                product_columns = self.model().controller.get_product_columns()
+
+                if column_idx < len(product_columns):
+                    column_name = product_columns[column_idx]
+                    if self.model().controller.is_checkbox_column(column_name):
+                        # Let the delegate handle checkbox interaction
+                        super().mousePressEvent(event)
+                        return
+
                 # Check if click was in the first column (where expand icon is)
                 if index.column() == 0:
                     item_rect = self.visualRect(index)

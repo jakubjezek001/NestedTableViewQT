@@ -260,6 +260,18 @@ class StyleManager:
             r"\{color:([^}]+)\}", replace_undefined_colors, processed
         )
 
+        # Replace unavailable resource images with working SVG data URLs
+        resource_replacements = {
+            "url(:/openpype/images/branch_open.png)": "url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgNkw4IDEwTDEyIDZINFoiIGZpbGw9IiNGRkZGRkYiLz4KPHN2Zz4K)",
+            "url(:/openpype/images/branch_open_on.png)": "url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTQgNkw4IDEwTDEyIDZINFoiIGZpbGw9IiMwMDc4ZDQiLz4KPHN2Zz4K)",
+            "url(:/openpype/images/branch_closed.png)": "url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTYgNEwxMCA4TDYgMTJWNFoiIGZpbGw9IiNGRkZGRkYiLz4KPHN2Zz4K)",
+            "url(:/openpype/images/branch_closed_on.png)": "url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTYgNEwxMCA4TDYgMTJWNFoiIGZpbGw9IiMwMDc4ZDQiLz4KPHN2Zz4K)",
+            "url(:/openpype/images/transparent.png)": "none",
+        }
+
+        for resource_url, replacement in resource_replacements.items():
+            processed = processed.replace(resource_url, replacement)
+
         self._processed_css = processed
 
     def get_css(self) -> str:

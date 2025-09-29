@@ -98,8 +98,36 @@ class TestProductTreeView(unittest.TestCase):
 
     def test_checkbox_column_detection(self):
         """Test checkbox column detection."""
+        self.controller.load_data()
         self.assertTrue(self.controller.is_checkbox_column("Enabled"))
         self.assertFalse(self.controller.is_checkbox_column("File Path"))
+
+    def test_boolean_column_detection(self):
+        """Test to verify which columns are detected as boolean."""
+        self.controller.load_data()
+
+        product_columns = self.controller.get_product_columns()
+        repr_columns = self.controller.get_representation_columns()
+
+        print("\nBoolean columns detected:")
+        print("Product columns:")
+        for column in product_columns:
+            is_checkbox = self.controller.is_checkbox_column(column)
+            column_type = self.controller.get_column_type(
+                column, is_product=True
+            )
+            print(f"  {column}: {column_type} -> checkbox: {is_checkbox}")
+
+        print("Representation columns:")
+        for column in repr_columns:
+            is_checkbox = self.controller.is_checkbox_column(column)
+            column_type = self.controller.get_column_type(
+                column, is_product=False
+            )
+            print(f"  {column}: {column_type} -> checkbox: {is_checkbox}")
+
+        # Assert that known boolean columns are detected
+        self.assertTrue(self.controller.is_checkbox_column("Enabled"))
 
     @unittest.skipIf(not QT_AVAILABLE, "Qt not available")
     def test_model_creation_with_qt(self):

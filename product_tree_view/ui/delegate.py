@@ -356,13 +356,32 @@ class ProductTreeDelegate(QStyledItemDelegate):
             ):
                 return None
 
-            # Create text editor for editable columns
-            from qtpy.QtWidgets import QLineEdit
+            # Create appropriate editor based on column data type
+            is_product = item_type == "product"
+            column_type = self.controller.get_column_type(
+                column_name, is_product
+            )
 
-            editor = QLineEdit(parent)
-            editor.setFrame(False)
-            editor.selectAll()  # Select all text when editing starts
-            return editor
+            from qtpy.QtWidgets import QLineEdit, QSpinBox, QDoubleSpinBox
+
+            if column_type == int:
+                editor = QSpinBox(parent)
+                editor.setRange(
+                    -999999999, 999999999
+                )  # Large range for flexibility
+                editor.setFrame(False)
+                return editor
+            elif column_type == float:
+                editor = QDoubleSpinBox(parent)
+                editor.setRange(-999999999.0, 999999999.0)
+                editor.setDecimals(6)  # Allow up to 6 decimal places
+                editor.setFrame(False)
+                return editor
+            else:  # str or other types
+                editor = QLineEdit(parent)
+                editor.setFrame(False)
+                editor.selectAll()  # Select all text when editing starts
+                return editor
 
         except Exception as e:
             # Log error and return None to prevent crashes
@@ -431,9 +450,23 @@ class ProductTreeDelegate(QStyledItemDelegate):
             # Get the current data
             data = index.data(Qt.DisplayRole)
 
-            from qtpy.QtWidgets import QLineEdit
+            from qtpy.QtWidgets import QLineEdit, QSpinBox, QDoubleSpinBox
 
-            if isinstance(editor, QLineEdit):
+            if isinstance(editor, QSpinBox):
+                # Handle integer data
+                try:
+                    value = int(float(str(data))) if data is not None else 0
+                    editor.setValue(value)
+                except (ValueError, TypeError):
+                    editor.setValue(0)
+            elif isinstance(editor, QDoubleSpinBox):
+                # Handle float data
+                try:
+                    value = float(str(data)) if data is not None else 0.0
+                    editor.setValue(value)
+                except (ValueError, TypeError):
+                    editor.setValue(0.0)
+            elif isinstance(editor, QLineEdit):
                 # Convert data to string, handle None values
                 text = str(data) if data is not None else ""
                 editor.setText(text)
@@ -447,17 +480,55 @@ class ProductTreeDelegate(QStyledItemDelegate):
             return
 
         try:
-            from qtpy.QtWidgets import QLineEdit
+            from qtpy.QtWidgets import QLineEdit, QSpinBox, QDoubleSpinBox
 
-            if isinstance(editor, QLineEdit):
+            new_value = None
+            current_data = index.data(Qt.DisplayRole)
+
+            if isinstance(editor, QSpinBox):
+                new_value = editor.value()
+                # Only update if value has changed
+                try:
+                    current_int = (
+                        int(float(str(current_data)))
+                        if current_data is not None
+                        else 0
+                    )
+                    if current_int != new_value:
+                        success = model.setData(index, new_value, Qt.EditRole)
+                        if not success:
+                            print(
+                                f"Failed to set integer data for index {index.row()}, {index.column()}"
+                            )
+                except (ValueError, TypeError):
+                    success = model.setData(index, new_value, Qt.EditRole)
+            elif isinstance(editor, QDoubleSpinBox):
+                new_value = editor.value()
+                # Only update if value has changed
+                try:
+                    current_float = (
+                        float(str(current_data))
+                        if current_data is not None
+                        else 0.0
+                    )
+                    if (
+                        abs(current_float - new_value) > 1e-10
+                    ):  # Use small epsilon for float comparison
+                        success = model.setData(index, new_value, Qt.EditRole)
+                        if not success:
+                            print(
+                                f"Failed to set float data for index {index.row()}, {index.column()}"
+                            )
+                except (ValueError, TypeError):
+                    success = model.setData(index, new_value, Qt.EditRole)
+            elif isinstance(editor, QLineEdit):
                 text = editor.text()
                 # Only update if the text has actually changed
-                current_data = index.data(Qt.DisplayRole)
                 if str(current_data) != text:
                     success = model.setData(index, text, Qt.EditRole)
                     if not success:
                         print(
-                            f"Failed to set data for index {index.row()}, {index.column()}"
+                            f"Failed to set text data for index {index.row()}, {index.column()}"
                         )
         except Exception as e:
             print(f"Error setting model data: {e}")

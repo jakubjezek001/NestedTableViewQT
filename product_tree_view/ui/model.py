@@ -102,6 +102,7 @@ class ProductTreeModel(QAbstractItemModel):
             # Add representation header as first child
             if product_data["representations"]:
                 header_data = {col: col for col in self.representation_columns}
+                print(f">> header_data: {header_data}")
                 header_item = TreeItem(
                     data=header_data,
                     parent=product_item,
@@ -207,7 +208,37 @@ class ProductTreeModel(QAbstractItemModel):
             if not item.has_data(column_name):
                 return None
 
-            return str(item.data(column_name))
+            # Get the raw value
+            raw_value = item.data(column_name)
+            if raw_value is None:
+                return None
+
+            # Determine column type for proper formatting
+            is_product = item.item_type == "product"
+            column_type = self.controller.get_column_type(
+                column_name, is_product
+            )
+
+            # Format based on data type
+            if column_type == bool:
+                return "True" if raw_value else "False"
+            elif column_type == int:
+                try:
+                    return str(int(raw_value))
+                except (ValueError, TypeError):
+                    return str(raw_value)
+            elif column_type == float:
+                try:
+                    # Format floats to avoid unnecessary decimal places
+                    float_val = float(raw_value)
+                    if float_val.is_integer():
+                        return f"{float_val:.1f}"
+                    else:
+                        return f"{float_val:.6g}"  # Use general format, up to 6 significant digits
+                except (ValueError, TypeError):
+                    return str(raw_value)
+            else:  # str
+                return str(raw_value)
 
         elif role == Qt.CheckStateRole:
             if self.controller.is_checkbox_column(column_name):
@@ -262,11 +293,13 @@ class ProductTreeModel(QAbstractItemModel):
         # Determine column name
         if item.item_type == "product":
             columns = self.product_columns
+            is_product = True
         elif (
             item.item_type == "representation"
             or item.item_type == "representation_header"
         ):
             columns = self.representation_columns
+            is_product = False
         else:
             return False
 
@@ -286,7 +319,17 @@ class ProductTreeModel(QAbstractItemModel):
                 return True
 
         elif role == Qt.EditRole:
-            item.set_data(column_name, value)
+            # Get the expected data type for this column
+            column_type = self.controller.get_column_type(
+                column_name, is_product
+            )
+
+            # Convert value to the appropriate type
+            converted_value = self.controller.convert_value_to_type(
+                value, column_type
+            )
+
+            item.set_data(column_name, converted_value)
             self.dataChanged.emit(index, index, [role])
             return True
 

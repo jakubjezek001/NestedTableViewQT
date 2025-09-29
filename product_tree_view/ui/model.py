@@ -203,6 +203,9 @@ class ProductTreeModel(QAbstractItemModel):
                 return indicator
 
             if self.controller.is_checkbox_column(column_name):
+                # Show column name for representation headers even if it's a boolean column
+                if item.item_type == "representation_header":
+                    return column_name
                 return None  # Checkboxes don't show text
 
             if not item.has_data(column_name):

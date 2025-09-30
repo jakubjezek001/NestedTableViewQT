@@ -76,7 +76,7 @@ def extended_format(
 
 
 if __name__ == "__main__":
-    TEMPLATE_STRING = "{'_'.join(name.split('_')[:2]).upper()}_v{version:03d}.{name.split('.')[-1]}"
+    TEMPLATE_STRING = "{{'_'.join(name.split('_')[:2]).upper()}}_v{version:03d}.{name.split('.')[-1]}"
 
     # at first lets try to format starndart string tempate
     context = {"name": "123_alpha_this_not.ext", "version": 1}

@@ -25,3 +25,6 @@ OpenColorIO-Configs
 OpenPype-premium
 
 ynput-ops-prodman
+
+filmstrip_exctrator/testing_dataset/sequence/*
+filmstrip_exctrator/testing_dataset/video/*

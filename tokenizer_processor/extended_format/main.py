@@ -11,12 +11,13 @@ token_regex_pattern = re.compile(r"\{[^{}]+\}")
 # detect expression tokens with single curly braces but exclude tokens
 # with double curly braces
 expression_token_regex_pattern = re.compile(
-    r"\{(?![a-zA-Z_][a-zA-Z0-9_]*:[0-9a-zA-Z#+\- .]+\})[^{}]+\}(?!\})"
+    r"\{(?![a-zA-Z_][a-zA-Z0-9_]*:[0-9a-zA-Z#+\- .]+\})[^{}]*[\.\[][^{}]*\}(?!\})"
 )
 
 # Whitelist of allowed operations in expressions
 ALLOWED_ATTRIBUTES = [
     "split",
+    "capitalize",
     "join",
     "upper",
     "lower",
@@ -173,8 +174,21 @@ def extended_format(
     """
     output_string = template_string
 
+    # Format any string which is formattable with str.format
+    tokens = token_regex_pattern.findall(output_string)
+    for token in tokens:
+        if not token:
+            continue
+        try:
+            token_formatted = token.format(**context)
+            output_string = output_string.replace(token, token_formatted)
+        except (KeyError, AttributeError):
+            # Skip tokens that cannot be formatted with the current context
+            pass
+    print(output_string)
     # First convert all expression tokens to double curly braces format
-    expression_tokens = expression_token_regex_pattern.findall(template_string)
+    expression_tokens = expression_token_regex_pattern.findall(output_string)
+    print(expression_tokens)
     if expression_tokens:
         for token in expression_tokens:
             if not token:
@@ -182,29 +196,16 @@ def extended_format(
             # Convert to expression format
             expr_token = "{{ " + token[1:-1] + " }}"
             output_string = output_string.replace(token, expr_token)
-
-    # Format any string which is formattable with str.format
-    try:
-        output_string = output_string.format(**context)
-    except KeyError as error:
-        # If formatting fails due to missing keys, continue with
-        # the original string
-        print(f"Validating expression: {error}")
-
-    # Convert any remaining tokens back to expression format
-    output_string = token_regex_pattern.sub(
-        lambda match: "{{ " + match.group(0)[1:-1] + " }}", output_string
-    )
-
+    print(output_string)
     # Evaluate expressions in the format {{ expr }}
     return format_expression_string(output_string, context)
 
 
 if __name__ == "__main__":
-    TEMPLATE_STRING = "{{'_'.join(name.split('_')[:2]).upper()}}_v{version:03d}.{name.split('.')[-1]}"
+    TEMPLATE_STRING = "{'_'.join((_filename_.split('.')[0]).split('_')[1:])}"
 
     # Test with a standard string template
-    context = {"name": "123_alpha_this_not.ext", "version": 1}
+    context = {"_filename_": "spiral_testing_video.%04d.exr"}
 
     output_string = extended_format(TEMPLATE_STRING, context)
     print(output_string)

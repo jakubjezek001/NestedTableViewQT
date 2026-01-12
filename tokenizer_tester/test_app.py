@@ -5,21 +5,20 @@ This script validates the application functionality and runs basic tests
 to ensure all components work correctly.
 """
 
-import sys
 import os
+import sys
 import time
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Add the current directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from qtpy.QtWidgets import QApplication
+from controller import parse_tokens, validate_path
 from qtpy.QtCore import QTimer
 from qtpy.QtTest import QTest
-
-from ui.ui import TokenizerTesterApp
-from controller import parse_tokens, validate_path
+from qtpy.QtWidgets import QApplication
 from tokenization import Tokenizer
+from ui.ui import TokenizerTesterApp
 
 
 def test_controller_functions():

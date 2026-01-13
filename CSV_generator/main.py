@@ -251,11 +251,19 @@ class FileItem:
             if result is None:
                 # If parse fails and template has optional sections, try without them
                 if has_optional:
-                    # Remove optional sections from template
-                    template_without_optional = re.sub(
-                        optional_pattern, "", template_part
+                    # First, try removing just the <> markers but keeping the content inside
+                    # This treats the optional section as required
+                    template_without_markers = re.sub(
+                        r"<([^>]*)>", r"\1", template_part
                     )
-                    result = parse(template_without_optional, path_part)
+                    result = parse(template_without_markers, path_part)
+
+                    if result is None:
+                        # If still fails, remove optional sections entirely
+                        template_without_optional = re.sub(
+                            optional_pattern, "", template_part
+                        )
+                        result = parse(template_without_optional, path_part)
 
                 # If still no result after trying without optional sections
                 if result is None:

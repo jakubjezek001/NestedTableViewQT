@@ -234,30 +234,37 @@ class FileItem:
         # Process from end (filename first, then directories)
         for i, template_part in enumerate(template_parts):
             if i >= len(path_parts):
-                message = (
-                    f"Error: No corresponding path part for template part "
-                    f"'{template_part}'"
-                )
                 # Store empty tokens and return early
                 self._tokens = {}
                 return
 
             path_part = path_parts[i]
 
-            # Try to parse path part using template part
+            # Check if template part contains optional sections marked with <...>
+            # Pattern to detect optional sections: <.{token_name}>
+            optional_pattern = r"<[^>]*>"
+            has_optional = re.search(optional_pattern, template_part)
+
+            #  Try to parse path part using template part
             result = parse(template_part, path_part)
 
             if result is None:
-                message = (
-                    f"Error: Failed to match template '{template_part}' "
-                    f"with path '{path_part}'"
-                )
-                # If first iteration (filename) fails, stop immediately
-                if i == 0:
-                    # Store empty tokens and return early
-                    self._tokens = {}
-                    return
-                continue
+                # If parse fails and template has optional sections, try without them
+                if has_optional:
+                    # Remove optional sections from template
+                    template_without_optional = re.sub(
+                        optional_pattern, "", template_part
+                    )
+                    result = parse(template_without_optional, path_part)
+
+                # If still no result after trying without optional sections
+                if result is None:
+                    # If first iteration (filename) fails, stop immediately
+                    if i == 0:
+                        # Store empty tokens and return early
+                        self._tokens = {}
+                        return
+                    continue
 
             # Extract tokens from parse result
             # The parse function returns a Result object with .named

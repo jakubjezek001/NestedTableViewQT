@@ -18,6 +18,7 @@ User usage:
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from pprint import pprint
@@ -26,9 +27,7 @@ from typing import Optional
 import clique
 from parse import parse
 
-PATH_PARSER_TEMPLATE = (
-    "/{YY}{MM}{DD}_{set_name}_{product_variant}_{product_subvariant}/{file}"
-)
+PATH_PARSER_TEMPLATE = "{root}/{package_name}/{product_name}/{project_name}_{sequence}_{shot}_{subset}<.{padding}>.{extension}"
 CSV_COLUMN_MAPPING = {
     "file_path": "File Path",
     "folder_path": "Folder Path",
@@ -121,6 +120,13 @@ REPRESENTATION_MAPPING = {
         "extensions": [".cr2", ".arw"],
         "tags": [],
     },
+    "hdri_stitched": {
+        "media_type": "image",
+        "is_sequence": False,
+        "search_pattern": ".*",
+        "extensions": [".exr"],
+        "tags": [""],
+    },
     "pano_review": {
         "media_type": "image",
         "is_sequence": False,
@@ -133,11 +139,14 @@ REPRESENTATION_MAPPING = {
         "is_sequence": False,
         "search_pattern": ".*",
         "extensions": [".pts"],
+        "tags": [],
     },
     "geometry": {
         "media_type": "geometry",
         "is_sequence": False,
+        "search_pattern": ".*",
         "extensions": [".obj", ".fbx", ".abc"],
+        "tags": [],
     },
 }
 # mapping of product and requred representations
@@ -199,6 +208,8 @@ class FileItem:
     media_type: str = ""
     is_sequence: bool = False
     __files__: list = field(default_factory=list)
+    _product_preset_name: str | None = None
+    _representation_preset_name: str | None = None
     representation_name: str = ""
     representation_tags: list = field(default_factory=list)
     optional_attrs: OptionalAttributes = field(
@@ -207,15 +218,153 @@ class FileItem:
 
     def parse_tokens(self) -> None:
         """Parse file path using PATH_PARSER_TEMPLATE to extract tokens."""
-        tokens = {}
-        parsed = parse(PATH_PARSER_TEMPLATE, self.file_path.as_posix())
-        if parsed:
-            tokens = getattr(parsed, "named", {})
-        self._tokens.update(tokens)
+        # Convert PATH_PARSER_TEMPLATE string to Path and get its parts
+        template_path = Path(PATH_PARSER_TEMPLATE)
+        template_parts = list(template_path.parts)
+
+        # Get parts from this file item's path
+        path_parts = list(self.file_path.parts)
+
+        # Reverse both lists to process from end (right to left)
+        template_parts.reverse()
+        path_parts.reverse()
+
+        all_tokens = {}
+
+        # Process from end (filename first, then directories)
+        for i, template_part in enumerate(template_parts):
+            if i >= len(path_parts):
+                message = (
+                    f"Error: No corresponding path part for template part "
+                    f"'{template_part}'"
+                )
+                # Store empty tokens and return early
+                self._tokens = {}
+                return
+
+            path_part = path_parts[i]
+
+            # Try to parse path part using template part
+            result = parse(template_part, path_part)
+
+            if result is None:
+                message = (
+                    f"Error: Failed to match template '{template_part}' "
+                    f"with path '{path_part}'"
+                )
+                # If first iteration (filename) fails, stop immediately
+                if i == 0:
+                    # Store empty tokens and return early
+                    self._tokens = {}
+                    return
+                continue
+
+            # Extract tokens from parse result
+            # The parse function returns a Result object with .named
+            # and .fixed attributes
+            # Use safe attribute access to avoid type checker warnings
+            named_tokens = getattr(result, "named", {})
+            fixed_tokens = getattr(result, "fixed", ())
+
+            if named_tokens:
+                # Named tokens
+                all_tokens.update(named_tokens)
+
+            # If no tokens matched but parse succeeded, it's an exact match
+            if not named_tokens and not fixed_tokens:
+                continue
+
+        # Store the parsed tokens in the instance variable
+        self._tokens = all_tokens
 
     def tokens(self) -> dict:
         """Return the parsed tokens from the file path."""
         return self._tokens
+
+    @property
+    def product_preset_name(self) -> str | None:
+        """Return the product preset name."""
+        return self._product_preset_name
+
+    @product_preset_name.setter
+    def product_preset_name(self, value: str | None) -> None:
+        self._product_preset_name = value
+
+    @property
+    def representation_preset_name(self) -> str | None:
+        """Return the representation preset name."""
+        return self._representation_preset_name
+
+    @representation_preset_name.setter
+    def representation_preset_name(self, value: str | None) -> None:
+        self._representation_preset_name = value
+
+
+def get_hashed_file_name_from_collection(collection: clique.Collection) -> str:
+    """Return the hashed file name from a collection.
+
+    Args:
+        collection (clique.Collection): The collection to get the hashed file name from.
+
+    Returns:
+        str: The hashed file name.
+    """
+    padding = collection.padding
+    hashed_padding = "#" * padding
+    head = collection.head
+    tail = collection.tail
+    return f"{head}{hashed_padding}{tail}"
+
+
+def detect_product_preset_name(file_path: str) -> str | None:
+    """Detect the product preset name from the file path.
+
+    Args:
+        file_path (str): The file path to detect the product preset name from.
+
+    Returns:
+        str | None: The product preset name if found, otherwise None.
+    """
+    preset_name = None
+    for name, data in PRODUCT_TYPE_MAPPING.items():
+        search_pattern = data["search_pattern"]
+        if re.search(search_pattern, file_path):
+            preset_name = name
+            break
+
+    return preset_name
+
+
+def detect_representation_preset_name(
+    file_path: str,
+    is_sequence: bool | None = False,
+    file_extension: str | None = None,
+) -> str | None:
+    """Detect the representation preset name from the file path.
+
+    Args:
+        file_path (str): The file path to detect the representation
+            preset name from.
+        is_sequence (bool | None): Whether the file is a sequence or not.
+        file_extension (str | None): The file extension.
+
+    Returns:
+        str | None: The representation preset name if found, otherwise None.
+    """
+    preset_name = None
+    for name, data in REPRESENTATION_MAPPING.items():
+        search_pattern = data["search_pattern"]
+        is_sequence_ = data["is_sequence"]
+        extensions = data["extensions"]
+        if (
+            re.search(search_pattern, file_path)
+            and is_sequence == is_sequence_
+            and file_extension in extensions
+        ):
+            preset_name = name
+            break
+
+    return preset_name
 
 
 def main(input_directory: str):
@@ -224,47 +373,66 @@ def main(input_directory: str):
     for root, dirs, _ in os.walk(input_directory):
         for dir_name in dirs:
             dir_path = Path(root, dir_name)
+            # detect what product is matching
+            product_preset_name = detect_product_preset_name(
+                dir_path.as_posix()
+            )
             # list all files in directory and exclude those starting with '.'
             dir_files = [
                 file.as_posix()
                 for file in list(dir_path.glob("*"))
                 if not file.name.startswith(".")
             ]
-            pprint(dir_files)
             collections, reminders = clique.assemble(dir_files)
 
             if collections:
                 for coll in collections:
-                    # file path converted to padded hash version
-                    file_name = coll.format("{head}{padding}{tail}")
+                    # detect what matchig representation
+                    file_name = get_hashed_file_name_from_collection(coll)
                     file_path = dir_path / file_name
-                    file_items.append(
-                        FileItem(
-                            file_path=file_path,
-                            file_name=file_name,
-                            file_ext=coll.tail,
+                    file_item = FileItem(
+                        file_path=file_path,
+                        file_name=file_name,
+                        file_ext=coll.tail,
+                        is_sequence=True,
+                        __files__=[
+                            (dir_path / file).resolve().as_posix()
+                            for file in coll
+                        ],
+                    )
+                    file_item.product_preset_name = product_preset_name
+                    file_item.representation_preset_name = (
+                        detect_representation_preset_name(
+                            file_name,
                             is_sequence=True,
-                            __files__=[
-                                (dir_path / file).resolve().as_posix()
-                                for file in coll
-                            ],
+                            file_extension=coll.tail,
                         )
                     )
+                    file_item.parse_tokens()
+                    file_items.append(file_item)
 
             if reminders:
                 for reminder in reminders:
                     file_path = dir_path / reminder
                     file_name = file_path.stem
                     file_ext = file_path.suffix
-                    file_items.append(
-                        FileItem(
-                            file_path=file_path,
-                            file_name=file_name,
-                            file_ext=file_ext,
+                    file_item = FileItem(
+                        file_path=file_path,
+                        file_name=file_name,
+                        file_ext=file_ext,
+                        is_sequence=False,
+                        __files__=[file_path.resolve().as_posix()],
+                    )
+                    file_item.product_preset_name = product_preset_name
+                    file_item.representation_preset_name = (
+                        detect_representation_preset_name(
+                            file_name,
                             is_sequence=False,
-                            __files__=[file_path.resolve().as_posix()],
+                            file_extension=file_ext,
                         )
                     )
+                    file_item.parse_tokens()
+                    file_items.append(file_item)
 
     pprint(file_items)
 

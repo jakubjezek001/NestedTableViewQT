@@ -306,6 +306,30 @@ class FileItem:
     def representation_preset_name(self, value: str | None) -> None:
         self._representation_preset_name = value
 
+    def detect_representation(
+        self,
+        is_sequence: bool | None = False,
+    ) -> None:
+        """Detect the representation from the file path.
+
+        Args:
+            is_sequence (bool | None): Whether the file is a sequence or not.
+
+        """
+        for name, data in REPRESENTATION_MAPPING.items():
+            search_pattern = data["search_pattern"]
+            is_sequence_ = data["is_sequence"]
+            extensions = data["extensions"]
+            if (
+                re.search(search_pattern, self.file_path.as_posix())
+                and is_sequence == is_sequence_
+                and self.file_ext in extensions
+            ):
+                self.representation_preset_name = name
+                self.media_type = data["media_type"]
+                self.representation_tags = data["tags"]
+                break
+
 
 def get_hashed_file_name_from_collection(collection: clique.Collection) -> str:
     """Return the hashed file name from a collection.
@@ -336,38 +360,6 @@ def detect_product_preset_name(file_path: str) -> str | None:
     for name, data in PRODUCT_TYPE_MAPPING.items():
         search_pattern = data["search_pattern"]
         if re.search(search_pattern, file_path):
-            preset_name = name
-            break
-
-    return preset_name
-
-
-def detect_representation_preset_name(
-    file_path: str,
-    is_sequence: bool | None = False,
-    file_extension: str | None = None,
-) -> str | None:
-    """Detect the representation preset name from the file path.
-
-    Args:
-        file_path (str): The file path to detect the representation
-            preset name from.
-        is_sequence (bool | None): Whether the file is a sequence or not.
-        file_extension (str | None): The file extension.
-
-    Returns:
-        str | None: The representation preset name if found, otherwise None.
-    """
-    preset_name = None
-    for name, data in REPRESENTATION_MAPPING.items():
-        search_pattern = data["search_pattern"]
-        is_sequence_ = data["is_sequence"]
-        extensions = data["extensions"]
-        if (
-            re.search(search_pattern, file_path)
-            and is_sequence == is_sequence_
-            and file_extension in extensions
-        ):
             preset_name = name
             break
 
@@ -408,13 +400,7 @@ def main(input_directory: str):
                         ],
                     )
                     file_item.product_preset_name = product_preset_name
-                    file_item.representation_preset_name = (
-                        detect_representation_preset_name(
-                            file_name,
-                            is_sequence=True,
-                            file_extension=coll.tail,
-                        )
-                    )
+                    file_item.detect_representation(is_sequence=True)
                     file_item.parse_tokens()
                     file_items.append(file_item)
 
@@ -431,13 +417,7 @@ def main(input_directory: str):
                         __files__=[file_path.resolve().as_posix()],
                     )
                     file_item.product_preset_name = product_preset_name
-                    file_item.representation_preset_name = (
-                        detect_representation_preset_name(
-                            file_name,
-                            is_sequence=False,
-                            file_extension=file_ext,
-                        )
-                    )
+                    file_item.detect_representation(is_sequence=False)
                     file_item.parse_tokens()
                     file_items.append(file_item)
 

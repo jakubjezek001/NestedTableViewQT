@@ -176,6 +176,19 @@ PRODUCT_TYPE_MAPPING = {
         # pythonic expression resolving
         "thumbnail": {"file_path": "{pano_review[__files__][-1]}"},
     },
+    "plate": {
+        "product_type": "plate",
+        "required_representations": [
+            "camera_raw",
+            "pano_review",
+            "pano_hdr",
+            "ptgui_stitch",
+        ],
+        # regex pattern for matching product preset to correct file path
+        "search_pattern": ".*plate.*",
+        # pythonic expression resolving
+        "thumbnail": {"file_path": "{pano_review[__files__][-1]}"},
+    },
 }
 
 
@@ -209,6 +222,7 @@ class FileItem:
     is_sequence: bool = False
     __files__: list = field(default_factory=list)
     _product_preset_name: str | None = None
+    _product_preset_data: dict | None = None
     _representation_preset_name: str | None = None
     representation_name: str = ""
     representation_tags: list = field(default_factory=list)
@@ -306,6 +320,15 @@ class FileItem:
         self._product_preset_name = value
 
     @property
+    def product_preset_data(self) -> dict | None:
+        """Return the product preset data."""
+        return self._product_preset_data
+
+    @product_preset_data.setter
+    def product_preset_data(self, value: dict | None) -> None:
+        self._product_preset_data = value
+
+    @property
     def representation_preset_name(self) -> str | None:
         """Return the representation preset name."""
         return self._representation_preset_name
@@ -355,7 +378,7 @@ def get_hashed_file_name_from_collection(collection: clique.Collection) -> str:
     return f"{head}{hashed_padding}{tail}"
 
 
-def detect_product_preset_name(file_path: str) -> str | None:
+def detect_product_preset(file_path: str) -> tuple[str | None, dict | None]:
     """Detect the product preset name from the file path.
 
     Args:
@@ -365,13 +388,15 @@ def detect_product_preset_name(file_path: str) -> str | None:
         str | None: The product preset name if found, otherwise None.
     """
     preset_name = None
+    preset_data = None
     for name, data in PRODUCT_TYPE_MAPPING.items():
         search_pattern = data["search_pattern"]
         if re.search(search_pattern, file_path):
             preset_name = name
+            preset_data = data
             break
 
-    return preset_name
+    return preset_name, preset_data
 
 
 def main(input_directory: str):
@@ -381,7 +406,7 @@ def main(input_directory: str):
         for dir_name in dirs:
             dir_path = Path(root, dir_name)
             # detect what product is matching
-            product_preset_name = detect_product_preset_name(
+            product_preset_name, product_preset_data = detect_product_preset(
                 dir_path.as_posix()
             )
             # list all files in directory and exclude those starting with '.'
@@ -408,6 +433,7 @@ def main(input_directory: str):
                         ],
                     )
                     file_item.product_preset_name = product_preset_name
+                    file_item.product_preset_data = product_preset_data
                     file_item.detect_representation(is_sequence=True)
                     file_item.parse_tokens()
                     file_items.append(file_item)
@@ -425,6 +451,7 @@ def main(input_directory: str):
                         __files__=[file_path.resolve().as_posix()],
                     )
                     file_item.product_preset_name = product_preset_name
+                    file_item.product_preset_data = product_preset_data
                     file_item.detect_representation(is_sequence=False)
                     file_item.parse_tokens()
                     file_items.append(file_item)
